@@ -39,9 +39,6 @@ function NavLinks() {
   )
 }
 
-// Since we are using 'use client', we can't export metadata directly.
-// We'll manage the title in the RootLayout or individual pages if needed.
-
 export default function DashboardLayout({
   children,
 }: {
