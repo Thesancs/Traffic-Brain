@@ -200,7 +200,7 @@ const DashboardLoadingSkeleton = () => (
   <div className="space-y-8">
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
       {[...Array(5)].map((_, i) => (
-        <Card key={i} className="bg-card/60">
+        <Card key={i} className="bg-card/60 backdrop-blur-sm border-border/30">
           <CardHeader>
             <Skeleton className="h-4 w-2/3" />
           </CardHeader>
@@ -210,7 +210,7 @@ const DashboardLoadingSkeleton = () => (
         </Card>
       ))}
     </div>
-    <Card className="bg-card/60">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
       <CardHeader>
         <Skeleton className="h-6 w-1/4" />
       </CardHeader>
