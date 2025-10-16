@@ -43,25 +43,25 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 0 0% 5.1%; /* #0D0D0D */
-    --foreground: 220 15% 95%;
-    --card: 220 25% 15%; /* A bit lighter than background for glassmorphism */
-    --card-foreground: 220 15% 95%;
-    --popover: 220 25% 10%;
-    --popover-foreground: 220 15% 95%;
-    --primary: 228 100% 65%; /* #4C6FFF */
-    --primary-foreground: 220 20% 99%;
-    --secondary: 220 25% 25%;
-    --secondary-foreground: 220 15% 95%;
-    --muted: 220 25% 25%;
-    --muted-foreground: 220 15% 65%;
-    --accent: 160 100% 50%; /* #00FFB3 */
-    --accent-foreground: 220 25% 10%;
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 220.9 39.3% 11%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 25% 25%;
-    --input: 220 25% 25%;
-    --ring: 228 100% 75%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 216 12.2% 83.9%;
     --chart-1: 228 100% 65%; /* Primary Blue */
     --chart-2: 160 100% 50%; /* Accent Green */
     --chart-3: 45 96% 53%;   /* Accent Yellow #FACC15 */
@@ -84,5 +84,20 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  @keyframes grid {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+
+  .animate-grid {
+    animation: grid 20s linear infinite;
   }
 }

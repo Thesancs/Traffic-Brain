@@ -71,7 +71,7 @@ function KpiCard({
       : formatNumber(value);
 
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border border-border/30">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
@@ -130,7 +130,7 @@ function KpiCards({ kpis }: { kpis: KpiData }) {
 
 function ComparativeChart({ data }: { data: DailyData[] }) {
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border border-border/30">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
       <CardHeader>
         <CardTitle className="font-headline">Desempenho Geral</CardTitle>
       </CardHeader>

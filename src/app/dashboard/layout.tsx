@@ -1,5 +1,6 @@
 "use client";
 
+import RetroGrid from "@/components/magicui/retro-grid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -13,7 +14,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { BrainCircuit, Facebook } from "lucide-react";
-import type { Metadata } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -28,7 +28,7 @@ function NavLinks() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild isActive={pathname === '/meta'}>
+        <SidebarMenuButton asChild isActive={pathname.startsWith('/meta')}>
           <Link href="/meta">
             <Facebook className="size-4 mr-2" />
             Meta Ads
@@ -78,7 +78,10 @@ export default function DashboardLayout({
             </Avatar>
           </div>
         </header>
-        <main className="p-4 md:p-8">{children}</main>
+        <main className="relative p-4 md:p-8">
+          <RetroGrid />
+          <div className="relative z-10">{children}</div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
