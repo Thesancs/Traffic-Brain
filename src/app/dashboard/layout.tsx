@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sidebar,
@@ -10,14 +12,35 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { BrainCircuit } from "lucide-react";
+import { BrainCircuit, Facebook } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Dashboard | Traffic Brain",
-  description: "Visualize your paid traffic data.",
-};
+function NavLinks() {
+  const pathname = usePathname();
+  
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild isActive={pathname === '/dashboard'}>
+          <Link href="/dashboard">Dashboard</Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild isActive={pathname === '/meta'}>
+          <Link href="/meta">
+            <Facebook className="size-4 mr-2" />
+            Meta Ads
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  )
+}
+
+// Since we are using 'use client', we can't export metadata directly.
+// We'll manage the title in the RootLayout or individual pages if needed.
 
 export default function DashboardLayout({
   children,
@@ -38,13 +61,7 @@ export default function DashboardLayout({
           </div>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive>
-                <Link href="/dashboard">Dashboard</Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+          <NavLinks />
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
