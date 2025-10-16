@@ -28,8 +28,8 @@ function NavLinks() {
         </SidebarMenuButton>
       </SidebarMenuItem>
       <SidebarMenuItem>
-        <SidebarMenuButton asChild isActive={pathname.startsWith('/meta')}>
-          <Link href="/meta">
+        <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/meta')}>
+          <Link href="/dashboard/meta">
             <Facebook className="size-4 mr-2" />
             Meta Ads
           </Link>
