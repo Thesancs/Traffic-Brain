@@ -73,3 +73,16 @@ export const detailedMetrics = {
     { name: 'Campanha E', cost: 1890, result: 4800 },
   ],
 };
+
+export type ConversionFunnelStage = {
+  stage: string;
+  value: number;
+};
+
+export const conversionFunnelData: ConversionFunnelStage[] = [
+  { stage: 'Cliques', value: 10000 },
+  { stage: 'Vis. Página', value: 8000 },
+  { stage: 'ICs', value: 1500 },
+  { stage: 'Vendas Inic.', value: 500 },
+  { stage: 'Vendas Apr.', value: 400 },
+];

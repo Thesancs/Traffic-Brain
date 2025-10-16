@@ -10,6 +10,7 @@ import {
   DollarSign,
   Eye,
   Filter,
+  Info,
   MousePointerClick,
   PieChartIcon,
   ShoppingBag,
@@ -52,8 +53,15 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Tooltip as UiTooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   adSpendDistribution,
   campaignSummary,
+  conversionFunnelData,
   detailedMetrics,
   funnelData,
   overviewKpis,
@@ -79,6 +87,8 @@ function Overview() {
         <KpiCard title="Leads" value={formatNumber(overviewKpis.leads)} icon={Users} />
         <KpiCard title="Checkouts" value={formatNumber(overviewKpis.checkouts)} icon={ShoppingBag} />
       </div>
+      
+      <ConversionFunnelCard />
 
       <div className="grid lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
@@ -153,6 +163,44 @@ function KpiCard({ title, value, icon: Icon }: { title: string; value: string | 
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold font-headline">{value}</div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ConversionFunnelCard() {
+  const baseValue = conversionFunnelData[0]?.value ?? 0;
+
+  return (
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="font-headline">Funil de Conversão (Meta Ads)</CardTitle>
+        <TooltipProvider>
+          <UiTooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="w-6 h-6">
+                <Info className="w-4 h-4 text-muted-foreground" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Este funil mostra a jornada do usuário desde o primeiro clique.</p>
+            </TooltipContent>
+          </UiTooltip>
+        </TooltipProvider>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-5 divide-x divide-border">
+          {conversionFunnelData.map((item, index) => {
+            const percentage = baseValue > 0 ? (item.value / baseValue) * 100 : 0;
+            return (
+              <div key={index} className="flex flex-col items-center justify-between p-4 space-y-12 text-center">
+                <h3 className="text-sm font-medium text-muted-foreground">{item.stage}</h3>
+                <p className="text-4xl font-bold font-headline">{percentage.toFixed(0)}%</p>
+                <p className="text-lg font-medium text-muted-foreground">{formatNumber(item.value)}</p>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );
