@@ -158,34 +158,72 @@ function KpiCard({ title, value, icon: Icon }: { title: string; value: string | 
   );
 }
 
+const FunnelStage = ({
+  stage,
+  value,
+  percentage,
+  color,
+  icon: Icon,
+}: {
+  stage: string;
+  value: number;
+  percentage: number;
+  color: string;
+  icon: React.ElementType;
+}) => {
+  const width = `${percentage}%`;
+
+  return (
+    <div className="relative flex items-center justify-center group">
+      <div
+        className="h-16 transition-all duration-300 ease-in-out"
+        style={{
+          width: width,
+          backgroundColor: color,
+          clipPath:
+            'polygon(0 0, 100% 0, calc(100% - 30px) 100%, 30px 100%)',
+        }}
+      />
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+        <div className="flex items-center gap-2">
+          <Icon className="w-4 h-4" />
+          <span className="text-sm font-semibold">{stage}</span>
+        </div>
+        <span className="text-lg font-bold font-headline">
+          {formatNumber(value)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 function TrafficFunnel() {
-  const total = funnelData[0].value;
+  const maxCliques = funnelData.length > 0 ? funnelData[0].value : 0;
+  const colors = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+  ];
+  const icons = [MousePointerClick, Users, ShoppingBag, Target];
+
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30">
       <CardHeader>
         <CardTitle className="font-headline">Funil de Tráfego</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {funnelData.map((item, index) => {
-            const percentage = ((item.value / total) * 100);
-            return (
-              <div key={item.stage} className="text-center">
-                <div className="flex justify-center items-center gap-2 text-lg font-semibold">
-                  {index === 0 && <MousePointerClick className="w-5 h-5" />}
-                  {index === 1 && <Users className="w-5 h-5" />}
-                  {index === 2 && <ShoppingBag className="w-5 h-5" />}
-                  {index === 3 && <Target className="w-5 h-5" />}
-                  <span>{item.stage}</span>
-                </div>
-                <div className="text-2xl font-bold font-headline">{formatNumber(item.value)}</div>
-                <div className="w-full bg-muted rounded-full h-2.5 mt-2">
-                  <div className="bg-primary h-2.5 rounded-full" style={{ width: `${percentage}%` }}></div>
-                </div>
-                {index < funnelData.length - 1 && <ChevronDown className="mx-auto mt-2 text-muted-foreground" />}
-              </div>
-            )
-          })}
+        <div className="flex flex-col items-center space-y-0">
+          {funnelData.map((item, index) => (
+            <FunnelStage
+              key={item.stage}
+              stage={item.stage}
+              value={item.value}
+              percentage={maxCliques > 0 ? (item.value / maxCliques) * 100 : 0}
+              color={colors[index % colors.length]}
+              icon={icons[index % icons.length]}
+            />
+          ))}
         </div>
       </CardContent>
     </Card>
