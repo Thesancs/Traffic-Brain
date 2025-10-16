@@ -1,3 +1,4 @@
+
 export const overviewKpis = {
   gastos: 3497.07,
   campanhasAtivas: 67,
@@ -25,10 +26,10 @@ export const funnelData = [
 ];
 
 export const adSpendDistribution = [
-  { name: 'Anúncio A', value: 400, fill: 'var(--color-chart-1)' },
-  { name: 'Anúncio B', value: 300, fill: 'var(--color-chart-2)' },
-  { name: 'Anúncio C', value: 300, fill: 'var(--color-chart-3)' },
-  { name: 'Anúncio D', value: 200, fill: 'var(--color-chart-4)' },
+  { name: 'Anúncio A', value: 400, fill: 'hsl(var(--chart-1))' },
+  { name: 'Anúncio B', value: 300, fill: 'hsl(var(--chart-2))' },
+  { name: 'Anúncio C', value: 300, fill: 'hsl(var(--chart-3))' },
+  { name: 'Anúncio D', value: 200, fill: 'hsl(var(--chart-4))' },
 ];
 
 export const campaignSummary = [
