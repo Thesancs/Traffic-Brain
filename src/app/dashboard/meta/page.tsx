@@ -163,37 +163,39 @@ const FluidFunnelChart = () => {
   const maxValue = Math.max(...data.map(d => d.value));
 
   const getPathD = (data: { stage: string; value: number }[], width: number, height: number): string => {
-    const points = data.map((d, i) => {
-      const x = (i / (data.length - 1)) * width;
-      const y = (d.value / maxValue) * (height / 2);
-      return { x, y };
-    });
+    if (data.length < 2) return "";
+    
+    const points = data.map((d, i) => ({
+      x: (i / (data.length - 1)) * width,
+      y: (d.value / maxValue) * (height / 2)
+    }));
 
-    let path = `M ${points[0].x},${height / 2 - points[0].y}`;
-
+    // Build the top curve
+    let topPath = `M ${points[0].x},${height / 2 - points[0].y}`;
     for (let i = 0; i < points.length - 1; i++) {
       const start = points[i];
-      const end = points[i + 1];
+      const end = points[i+1];
       const cp1x = start.x + (end.x - start.x) / 2;
       const cp1y = height / 2 - start.y;
       const cp2x = start.x + (end.x - start.x) / 2;
       const cp2y = height / 2 - end.y;
-      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 - end.y}`;
+      topPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 - end.y}`;
     }
 
-    let lowerPath = `L ${points[points.length - 1].x},${height / 2 + points[points.length - 1].y}`;
-    
+    // Build the bottom curve
+    let bottomPath = ` L ${points[points.length - 1].x},${height / 2 + points[points.length - 1].y}`;
     for (let i = points.length - 1; i > 0; i--) {
       const start = points[i];
       const end = points[i - 1];
-       const cp1x = start.x - (start.x - end.x) / 2;
+      const cp1x = start.x - (start.x - end.x) / 2;
       const cp1y = height / 2 + start.y;
       const cp2x = start.x - (start.x - end.x) / 2;
       const cp2y = height / 2 + end.y;
-      lowerPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 + end.y}`;
+      bottomPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 + end.y}`;
     }
-    
-    return path + " " + lowerPath + " Z";
+    bottomPath += " Z";
+
+    return topPath + bottomPath;
   };
 
 
