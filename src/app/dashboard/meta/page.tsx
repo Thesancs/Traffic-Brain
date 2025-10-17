@@ -487,7 +487,7 @@ function PieChartCard({ title, data }: { title: string; data: { name: string; va
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
-              <LabelList dataKey="name" position="outside" />
+              <LabelList dataKey="name" position="outside" fill="#fff" />
             </Pie>
             <Tooltip
               contentStyle={{
@@ -570,5 +570,3 @@ export default function MetaAdsPage() {
     </div>
   );
 }
-
-    
