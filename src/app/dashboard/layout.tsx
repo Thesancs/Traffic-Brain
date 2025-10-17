@@ -2,41 +2,31 @@
 
 import RetroGrid from "@/components/magicui/retro-grid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { BrainCircuit, Facebook } from "lucide-react";
+import { BrainCircuit, Facebook, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 function NavLinks() {
   const pathname = usePathname();
-  
+
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild isActive={pathname === '/dashboard'}>
-          <Link href="/dashboard">Dashboard</Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/meta')}>
-          <Link href="/dashboard/meta">
-            <Facebook className="size-4 mr-2" />
-            Meta Ads
-          </Link>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  )
+    <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+      <Link
+        href="/dashboard"
+        className={`flex items-center gap-2 transition-colors hover:text-foreground ${pathname === '/dashboard' ? 'text-foreground' : 'text-muted-foreground'}`}
+      >
+        <LayoutDashboard className="size-4" />
+        Dashboard
+      </Link>
+      <Link
+        href="/dashboard/meta"
+        className={`flex items-center gap-2 transition-colors hover:text-foreground ${pathname.startsWith('/dashboard/meta') ? 'text-foreground' : 'text-muted-foreground'}`}
+      >
+        <Facebook className="size-4" />
+        Meta Ads
+      </Link>
+    </nav>
+  );
 }
 
 export default function DashboardLayout({
@@ -45,41 +35,33 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 text-primary p-2 rounded-lg border border-primary/20">
-              <BrainCircuit className="size-6" />
-            </div>
-            <h1 className="text-xl font-bold font-headline text-foreground">
-              Traffic Brain
-            </h1>
+    <div className="flex flex-col min-h-screen">
+      <header className="sticky top-0 z-50 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-8">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary/10 text-primary p-2 rounded-lg border border-primary/20">
+            <BrainCircuit className="size-6" />
           </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <NavLinks />
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset>
-        <header className="flex items-center justify-between h-16 px-4 border-b shrink-0 md:px-8">
-          <SidebarTrigger className="md:hidden" />
-          <div className="flex-1" />
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm font-medium sm:inline">
-              Conta Logada
-            </span>
-            <Avatar className="w-8 h-8">
-              <AvatarImage src="https://picsum.photos/seed/123/40/40" alt="User" data-ai-hint="person avatar" />
-              <AvatarFallback>TB</AvatarFallback>
-            </Avatar>
-          </div>
-        </header>
-        <main className="relative p-4 md:p-8">
-          <RetroGrid />
-          <div className="relative z-10">{children}</div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+          <h1 className="text-xl font-bold font-headline text-foreground">
+            Traffic Brain
+          </h1>
+        </div>
+        <div className="flex items-center w-full justify-center">
+            <NavLinks />
+        </div>
+        <div className="flex items-center gap-4 ml-auto">
+          <span className="hidden text-sm font-medium sm:inline">
+            Conta Logada
+          </span>
+          <Avatar className="w-8 h-8">
+            <AvatarImage src="https://picsum.photos/seed/123/40/40" alt="User" data-ai-hint="person avatar" />
+            <AvatarFallback>TB</AvatarFallback>
+          </Avatar>
+        </div>
+      </header>
+      <main className="relative flex-1 p-4 md:p-8">
+        <RetroGrid />
+        <div className="relative z-10">{children}</div>
+      </main>
+    </div>
   );
 }
