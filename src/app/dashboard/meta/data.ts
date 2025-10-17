@@ -79,10 +79,13 @@ export type ConversionFunnelStage = {
   value: number;
 };
 
+// Data based on the reference image
 export const conversionFunnelData: ConversionFunnelStage[] = [
-  { stage: 'Cliques', value: 10000 },
-  { stage: 'Vis. Página', value: 8000 },
-  { stage: 'ICs', value: 1500 },
-  { stage: 'Vendas Inic.', value: 500 },
-  { stage: 'Vendas Apr.', value: 400 },
+  { stage: 'Cliques', value: 15 },
+  { stage: 'Vis. Página', value: 10 },
+  { stage: 'ICs', value: 1 },
+  { stage: 'Vendas Inic.', value: 12 },
+  { stage: 'Vendas Apr.', value: 4 },
 ];
+
+    

@@ -19,6 +19,8 @@ import {
   Users,
 } from "lucide-react";
 import {
+  Area,
+  AreaChart,
   Bar,
   CartesianGrid,
   Cell,
@@ -68,7 +70,7 @@ import {
   weeklyPerformance,
 } from "./data";
 import { DashboardCard } from "@/components/ui/dashboard-card";
-
+import { cn } from "@/lib/utils";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", {
@@ -89,18 +91,18 @@ function Overview() {
         <DashboardCard title="Leads" value={formatNumber(overviewKpis.leads)} icon={<Users />} />
         <DashboardCard title="Checkouts" value={formatNumber(overviewKpis.checkouts)} icon={<ShoppingBag />} />
       </div>
-      
-      <ConversionFunnelCard />
+
+      <FluidFunnelChart />
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
           <CardHeader>
             <CardTitle className="font-headline text-accent">Gasto, Leads e Receita</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={weeklyPerformance}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} />
                 <YAxis yAxisId="left" orientation="left" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} />
                 <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-2))" tickLine={false} axisLine={false} />
@@ -121,7 +123,7 @@ function Overview() {
       </div>
 
       <div className="grid lg:grid-cols-5 gap-8">
-        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
           <CardHeader>
             <CardTitle className="font-headline text-accent">Distribuição de Gastos por Anúncio</CardTitle>
           </CardHeader>
@@ -143,7 +145,7 @@ function Overview() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
           <CardHeader>
             <CardTitle className="font-headline text-accent">Resumo das Campanhas</CardTitle>
           </CardHeader>
@@ -156,11 +158,47 @@ function Overview() {
   );
 }
 
-function ConversionFunnelCard() {
-  const baseValue = conversionFunnelData[0]?.value ?? 0;
+const FluidFunnelChart = () => {
+  const data = conversionFunnelData;
+  const maxValue = Math.max(...data.map(d => d.value));
+
+  const getPathD = (data: { stage: string; value: number }[], width: number, height: number): string => {
+    const points = data.map((d, i) => {
+      const x = (i / (data.length - 1)) * width;
+      const y = (d.value / maxValue) * (height / 2);
+      return { x, y };
+    });
+
+    let path = `M ${points[0].x},${height / 2 - points[0].y}`;
+
+    for (let i = 0; i < points.length - 1; i++) {
+      const start = points[i];
+      const end = points[i + 1];
+      const cp1x = start.x + (end.x - start.x) / 2;
+      const cp1y = height / 2 - start.y;
+      const cp2x = start.x + (end.x - start.x) / 2;
+      const cp2y = height / 2 - end.y;
+      path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 - end.y}`;
+    }
+
+    let lowerPath = `L ${points[points.length - 1].x},${height / 2 + points[points.length - 1].y}`;
+    
+    for (let i = points.length - 1; i > 0; i--) {
+      const start = points[i];
+      const end = points[i - 1];
+       const cp1x = start.x - (start.x - end.x) / 2;
+      const cp1y = height / 2 + start.y;
+      const cp2x = start.x - (start.x - end.x) / 2;
+      const cp2y = height / 2 + end.y;
+      lowerPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 + end.y}`;
+    }
+    
+    return path + " " + lowerPath + " Z";
+  };
+
 
   return (
-    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+    <Card className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg hover:shadow-neon-blue transition-all duration-300 ease-in-out">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-headline text-accent">Funil de Conversão (Meta Ads)</CardTitle>
         <TooltipProvider>
@@ -176,23 +214,61 @@ function ConversionFunnelCard() {
           </UiTooltip>
         </TooltipProvider>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-5 divide-x divide-border">
-          {conversionFunnelData.map((item, index) => {
-            const percentage = baseValue > 0 ? (item.value / baseValue) * 100 : 0;
-            return (
-              <div key={index} className="flex flex-col items-center justify-between p-4 space-y-12 text-center">
-                <h3 className="text-sm font-medium text-muted-foreground">{item.stage}</h3>
-                <p className="text-4xl font-bold text-accent font-headline">{percentage.toFixed(0)}%</p>
-                <p className="text-lg font-medium text-muted-foreground">{formatNumber(item.value)}</p>
+      <CardContent className="h-[250px] p-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <div className="relative w-full h-full p-6 flex flex-col">
+            <div className="flex justify-around items-start">
+              {data.map((item, index) => (
+                <div key={index} className="flex-1 text-center">
+                  <h3 className="text-sm md:text-base text-blue-200">{item.stage}</h3>
+                </div>
+              ))}
+            </div>
+
+            <div className="relative flex-1 w-full flex items-center justify-center">
+              <svg width="100%" height="100%" viewBox="0 0 800 150" preserveAspectRatio="none" className="absolute top-0 left-0 drop-shadow-[0_0_10px_#00F7FF66]">
+                 <defs>
+                    <linearGradient id="funnelGradient" x1="0%" y1="50%" x2="100%" y2="50%">
+                      <stop offset="0%" stopColor="hsl(var(--chart-1))" />
+                      <stop offset="50%" stopColor="hsl(var(--chart-2))" />
+                      <stop offset="100%" stopColor="#FF00AA" />
+                    </linearGradient>
+                  </defs>
+                <path d={getPathD(data, 800, 150)} fill="url(#funnelGradient)" />
+              </svg>
+
+              <div className="w-full h-full flex justify-around items-center">
+                 {data.map((item, index) => (
+                  <div key={index} className="z-10 flex-1 text-center">
+                    <p className="text-white font-semibold text-lg md:text-xl font-headline">
+                      {((item.value / data[0].value) * 100).toFixed(1)}%
+                    </p>
+                  </div>
+                ))}
               </div>
-            );
-          })}
-        </div>
+            </div>
+
+            <div className="flex justify-around items-end">
+              {data.map((item, index) => (
+                 <div key={index} className="flex-1 text-center">
+                  <p className="text-sm md:text-base text-blue-200">{formatNumber(item.value)}</p>
+                 </div>
+              ))}
+            </div>
+
+            <div className="absolute top-1/2 left-0 w-full h-px" style={{ transform: 'translateY(-50%)' }}>
+              <div className="flex justify-around h-full">
+                {data.slice(0, -1).map((_, index) => (
+                  <div key={index} className={cn("w-px bg-blue-300/20 h-full", index === 0 && 'ml-[20%]')}></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );
-}
+};
 
 const FunnelStage = ({
   stage,
@@ -217,7 +293,7 @@ const FunnelStage = ({
           width: width,
           backgroundColor: color,
           clipPath:
-            'polygon(0 0, 100% 0, calc(100% - 30px) 100%, 30px 100%)',
+            'polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)',
         }}
       />
       <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
@@ -244,18 +320,18 @@ function TrafficFunnel() {
   const icons = [MousePointerClick, Users, ShoppingBag, Target];
 
   return (
-    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
       <CardHeader>
         <CardTitle className="font-headline text-accent">Funil de Tráfego</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col items-center space-y-0">
+        <div className="space-y-2">
           {funnelData.map((item, index) => (
             <FunnelStage
               key={item.stage}
               stage={item.stage}
               value={item.value}
-              percentage={maxCliques > 0 ? (item.value / maxCliques) * 100 : 0}
+              percentage={maxCliques > 0 ? (item.value / maxCliques) * 80 + 20 : 0}
               color={colors[index % colors.length]}
               icon={icons[index % icons.length]}
             />
@@ -313,14 +389,14 @@ function Details() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
           <CardHeader>
             <CardTitle className="font-headline text-accent">Métricas de Performance (CTR, CPC, CPM)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={detailedMetrics.ctr}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
                 <XAxis dataKey="date" tickLine={false} axisLine={false} />
                 <YAxis />
                 <Tooltip
@@ -343,7 +419,7 @@ function Details() {
         <PieChartCard title="Anúncios com Menor CPA" data={detailedMetrics.lowestCpaAds} />
       </div>
 
-      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
         <CardHeader>
           <CardTitle className="font-headline text-accent">Tabela Comparativa de Campanhas</CardTitle>
         </CardHeader>
@@ -352,14 +428,14 @@ function Details() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
         <CardHeader>
           <CardTitle className="font-headline text-accent">Comparação de Campanhas (Custo x Resultado)</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <RechartsBarChart data={detailedMetrics.campaignCostResult}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)"/>
               <XAxis dataKey="name" tickLine={false} axisLine={false} />
               <YAxis />
               <Tooltip
@@ -398,7 +474,7 @@ function FilterDropdown({ label, options }: { label: string; options: string[] }
 
 function PieChartCard({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) {
   return (
-    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
+    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
       <CardHeader>
         <CardTitle className="font-headline text-accent">{title}</CardTitle>
       </CardHeader>
@@ -492,3 +568,5 @@ export default function MetaAdsPage() {
     </div>
   );
 }
+
+    
