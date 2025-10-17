@@ -2,7 +2,7 @@
 
 import RetroGrid from "@/components/magicui/retro-grid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BrainCircuit, Facebook, LayoutDashboard } from "lucide-react";
+import { BrainCircuit, Chrome, Facebook, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,6 +24,13 @@ function NavLinks() {
       >
         <Facebook className="size-4" />
         Meta Ads
+      </Link>
+      <Link
+        href="/dashboard/google"
+        className={`flex items-center gap-2 transition-colors hover:text-foreground ${pathname.startsWith('/dashboard/google') ? 'text-foreground' : 'text-muted-foreground'}`}
+      >
+        <Chrome className="size-4" />
+        Google Ads
       </Link>
     </nav>
   );
