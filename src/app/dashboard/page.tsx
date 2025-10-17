@@ -111,69 +111,75 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
         <CardTitle className="font-headline text-accent">Desempenho Geral</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
-          <LineChart data={data}>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 6)}
-            />
-            <YAxis
-              yAxisId="left"
-              stroke="hsl(var(--chart-1))"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={value => `$${Number(value) / 1000}k`}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
-              stroke="hsl(var(--chart-2))"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <Tooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="dot" />}
-               contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    borderColor: 'hsl(var(--border))',
-                  }}
-            />
-            <Line
-              dataKey="spend"
-              name="Gasto"
-              yAxisId="left"
-              type="natural"
-              stroke="hsl(var(--chart-1))"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              dataKey="revenue"
-              name="Receita"
-              yAxisId="left"
-              type="natural"
-              stroke="hsl(var(--chart-3))"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              dataKey="conversions"
-              name="Conversões"
-              yAxisId="right"
-              type="natural"
-              stroke="hsl(var(--chart-2))"
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <ChartContainer config={chartConfig} className="h-[250px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              accessibilityLayer
+              data={data}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={(value) => value.slice(0, 6)}
+              />
+               <YAxis
+                yAxisId="left"
+                stroke="hsl(var(--chart-1))"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                tickFormatter={value => `$${Number(value) / 1000}k`}
+              />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                stroke="hsl(var(--chart-2))"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent indicator="dot" />}
+                 contentStyle={{
+                      backgroundColor: 'hsl(var(--background))',
+                      borderColor: 'hsl(var(--border))',
+                    }}
+              />
+              <Line
+                dataKey="spend"
+                type="natural"
+                stroke="var(--color-spend)"
+                strokeWidth={2}
+                dot={false}
+                yAxisId="left"
+              />
+              <Line
+                dataKey="revenue"
+                type="natural"
+                stroke="var(--color-revenue)"
+                strokeWidth={2}
+                dot={false}
+                yAxisId="left"
+              />
+              <Line
+                dataKey="conversions"
+                type="natural"
+                stroke="var(--color-conversions)"
+                strokeWidth={2}
+                dot={false}
+                yAxisId="right"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartContainer>
       </CardContent>
     </Card>
   );
