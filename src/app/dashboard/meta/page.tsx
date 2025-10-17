@@ -17,6 +17,7 @@ import {
   Target,
   TrendingUp,
   Users,
+  AlertCircle
 } from "lucide-react";
 import {
   Area,
@@ -71,6 +72,10 @@ import {
 } from "./data";
 import { DashboardCard } from "@/components/ui/dashboard-card";
 import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", {
@@ -167,7 +172,7 @@ const FluidFunnelChart = () => {
     
     const points = data.map((d, i) => ({
       x: (i / (data.length - 1)) * width,
-      y: (d.value / maxValue) * (height / 2)
+      y: d.value > 0 ? (d.value / maxValue) * (height / 2) * 0.8 + (height * 0.1) : 0
     }));
 
     // Build the top curve
@@ -483,7 +488,7 @@ function PieChartCard({ title, data }: { title: string; data: { name: string; va
       <CardContent>
         <ResponsiveContainer width="100%" height={250}>
           <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5}>
+            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
@@ -545,7 +550,93 @@ function ComparisonTable() {
   );
 }
 
+const DashboardLoadingSkeleton = () => (
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i} className="bg-card/60 backdrop-blur-sm border-border/30">
+            <CardHeader>
+              <Skeleton className="h-4 w-2/3" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="w-1/2 h-8" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+        <CardHeader>
+          <Skeleton className="h-6 w-1/4" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[250px] w-full" />
+        </CardContent>
+      </Card>
+        <div className="grid lg:grid-cols-3 gap-8">
+            <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
+                <CardHeader>
+                    <Skeleton className="h-6 w-1/3" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-[300px] w-full" />
+                </CardContent>
+            </Card>
+            <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+                <CardHeader>
+                    <Skeleton className="h-6 w-1/2" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+  );
+  
+  const DashboardErrorState = ({ message }: { message: string }) => (
+    <Alert variant="destructive" className="bg-destructive/10 border-destructive/50">
+      <AlertCircle className="w-4 h-4" />
+      <AlertTitle>Erro ao carregar o dashboard</AlertTitle>
+      <AlertDescription>{message}</AlertDescription>
+    </Alert>
+  );
+
 export default function MetaAdsPage() {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    
+    // This simulates fetching data from an API.
+    useEffect(() => {
+      console.log("[MetaAdsDashboard]", "Iniciando simulação de fetch de dados.");
+      const timer = setTimeout(() => {
+        try {
+          // To simulate an error, you could throw an error here randomly
+          // if (Math.random() > 0.8) throw new Error("Falha na rede simulada");
+          
+          // In a real app, you would fetch data here and setData().
+          // Since we are still using mock data, we just set loading to false.
+          console.log("[MetaAdsDashboard]", "Dados (mock) carregados com sucesso.");
+        } catch (e: any) {
+          console.error("[MetaAdsDashboard]", "Erro simulado ao carregar dados:", e.message);
+          setError(e.message || "Ocorreu um erro desconhecido.");
+        } finally {
+          setLoading(false);
+        }
+      }, 1500);
+  
+      return () => clearTimeout(timer);
+    }, []);
+  
+    if (loading) {
+      return <DashboardLoadingSkeleton />;
+    }
+  
+    if (error) {
+      return <DashboardErrorState message={error} />;
+    }
+
   return (
     <div className="text-foreground">
       <div className="flex items-center justify-between mb-8">

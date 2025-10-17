@@ -9,7 +9,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
-import { Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
+import { Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -111,9 +111,9 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
         <CardTitle className="font-headline text-accent">Desempenho Geral</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <LineChart accessibilityLayer data={data}>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={data}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -140,9 +140,14 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
             <Tooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dot" />}
+               contentStyle={{
+                    backgroundColor: 'hsl(var(--background))',
+                    borderColor: 'hsl(var(--border))',
+                  }}
             />
             <Line
               dataKey="spend"
+              name="Gasto"
               yAxisId="left"
               type="natural"
               stroke="hsl(var(--chart-1))"
@@ -151,6 +156,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
             />
             <Line
               dataKey="revenue"
+              name="Receita"
               yAxisId="left"
               type="natural"
               stroke="hsl(var(--chart-3))"
@@ -159,6 +165,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
             />
             <Line
               dataKey="conversions"
+              name="Conversões"
               yAxisId="right"
               type="natural"
               stroke="hsl(var(--chart-2))"
@@ -166,7 +173,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
               dot={false}
             />
           </LineChart>
-        </ChartContainer>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );
