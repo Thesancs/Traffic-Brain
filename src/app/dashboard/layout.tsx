@@ -2,7 +2,7 @@
 
 import RetroGrid from "@/components/magicui/retro-grid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BrainCircuit, Chrome, Facebook, LayoutDashboard } from "lucide-react";
+import { BrainCircuit, Chrome, Facebook, LayoutDashboard, Plug } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -57,6 +57,13 @@ function NavLinks() {
       >
         <TikTokIcon />
         Tiktok Ads
+      </Link>
+      <Link
+        href="/dashboard/integrations"
+        className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/integrations') ? 'text-accent' : 'text-muted-foreground'}`}
+      >
+        <Plug className="size-4" />
+        Integrações
       </Link>
     </nav>
   );
