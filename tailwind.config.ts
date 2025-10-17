@@ -71,6 +71,9 @@ export default {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      boxShadow: {
+        'neon-blue': '0 0 12px hsl(var(--accent) / 0.4)',
+      },
       keyframes: {
         'accordion-down': {
           from: {

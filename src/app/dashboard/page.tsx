@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { calculateKpis, KpiData, mockChartData, DailyData } from "./data";
+import { DashboardCard } from "@/components/ui/dashboard-card";
+
 
 const chartConfig = {
   revenue: {
@@ -52,69 +54,37 @@ const formatDecimal = (value: number) =>
     maximumFractionDigits: 2,
   }).format(value);
 
-function KpiCard({
-  title,
-  value,
-  icon: Icon,
-  format = "number",
-}: {
-  title: string;
-  value: number;
-  icon: React.ElementType;
-  format?: "currency" | "number" | "decimal";
-}) {
-  const formattedValue =
-    format === "currency"
-      ? formatCurrency(value)
-      : format === "decimal"
-      ? formatDecimal(value)
-      : formatNumber(value);
-
-  return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-        <Icon className="w-4 h-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold font-headline">{formattedValue}</div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function KpiCards({ kpis }: { kpis: KpiData }) {
   const kpiList = [
     {
       title: "Investimento Total",
       value: kpis.totalInvestment,
-      icon: DollarSign,
+      icon: <DollarSign />,
       format: "currency",
     },
     {
       title: "Leads Gerados",
       value: kpis.totalLeads,
-      icon: Users,
+      icon: <Users />,
       format: "number",
     },
     {
       title: "Receita Estimada",
       value: kpis.estimatedRevenue,
-      icon: TrendingUp,
+      icon: <TrendingUp />,
       format: "currency",
     },
     {
       title: "ROAS Médio",
       value: kpis.averageRoas,
-      icon: Target,
+      icon: <Target />,
       format: "decimal",
+      highlight: true
     },
     {
       title: "Custo por Lead",
       value: kpis.cpl,
-      icon: UserCheck,
+      icon: <UserCheck />,
       format: "currency",
     },
   ];
@@ -122,7 +92,13 @@ function KpiCards({ kpis }: { kpis: KpiData }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
       {kpiList.map((kpi) => (
-        <KpiCard key={kpi.title} {...kpi} />
+        <DashboardCard 
+          key={kpi.title} 
+          title={kpi.title}
+          value={kpi.format === 'currency' ? formatCurrency(kpi.value) : kpi.format === 'decimal' ? formatDecimal(kpi.value) : formatNumber(kpi.value)}
+          icon={kpi.icon}
+          highlight={kpi.highlight}
+        />
       ))}
     </div>
   );
@@ -130,9 +106,9 @@ function KpiCards({ kpis }: { kpis: KpiData }) {
 
 function ComparativeChart({ data }: { data: DailyData[] }) {
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
       <CardHeader>
-        <CardTitle className="font-headline">Desempenho Geral</CardTitle>
+        <CardTitle className="font-headline text-accent">Desempenho Geral</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px] w-full">

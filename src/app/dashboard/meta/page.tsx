@@ -67,6 +67,8 @@ import {
   overviewKpis,
   weeklyPerformance,
 } from "./data";
+import { DashboardCard } from "@/components/ui/dashboard-card";
+
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", {
@@ -79,21 +81,21 @@ const formatNumber = (value: number) =>
 function Overview() {
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <KpiCard title="Gastos" value={formatCurrency(overviewKpis.gastos)} icon={DollarSign} />
-        <KpiCard title="Campanhas Ativas" value={formatNumber(overviewKpis.campanhasAtivas)} icon={Activity} />
-        <KpiCard title="Impressões" value={formatNumber(overviewKpis.impressoes)} icon={Eye} />
-        <KpiCard title="Receita Estimada" value={formatCurrency(overviewKpis.receitaEstimada)} icon={TrendingUp} />
-        <KpiCard title="Leads" value={formatNumber(overviewKpis.leads)} icon={Users} />
-        <KpiCard title="Checkouts" value={formatNumber(overviewKpis.checkouts)} icon={ShoppingBag} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <DashboardCard title="Gastos" value={formatCurrency(overviewKpis.gastos)} icon={<DollarSign />} />
+        <DashboardCard title="Campanhas Ativas" value={formatNumber(overviewKpis.campanhasAtivas)} icon={<Activity />} />
+        <DashboardCard title="Impressões" value={formatNumber(overviewKpis.impressoes)} icon={<Eye />} />
+        <DashboardCard title="Receita Estimada" value={formatCurrency(overviewKpis.receitaEstimada)} icon={<TrendingUp />} />
+        <DashboardCard title="Leads" value={formatNumber(overviewKpis.leads)} icon={<Users />} />
+        <DashboardCard title="Checkouts" value={formatNumber(overviewKpis.checkouts)} icon={<ShoppingBag />} />
       </div>
       
       <ConversionFunnelCard />
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
           <CardHeader>
-            <CardTitle className="font-headline">Gasto, Leads e Receita</CardTitle>
+            <CardTitle className="font-headline text-accent">Gasto, Leads e Receita</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -119,9 +121,9 @@ function Overview() {
       </div>
 
       <div className="grid lg:grid-cols-5 gap-8">
-        <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
           <CardHeader>
-            <CardTitle className="font-headline">Distribuição de Gastos por Anúncio</CardTitle>
+            <CardTitle className="font-headline text-accent">Distribuição de Gastos por Anúncio</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -141,9 +143,9 @@ function Overview() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-3 bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
           <CardHeader>
-            <CardTitle className="font-headline">Resumo das Campanhas</CardTitle>
+            <CardTitle className="font-headline text-accent">Resumo das Campanhas</CardTitle>
           </CardHeader>
           <CardContent>
             <CampaignSummaryTable />
@@ -154,27 +156,13 @@ function Overview() {
   );
 }
 
-function KpiCard({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) {
-  return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className="w-4 h-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold font-headline">{value}</div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function ConversionFunnelCard() {
   const baseValue = conversionFunnelData[0]?.value ?? 0;
 
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="font-headline">Funil de Conversão (Meta Ads)</CardTitle>
+        <CardTitle className="font-headline text-accent">Funil de Conversão (Meta Ads)</CardTitle>
         <TooltipProvider>
           <UiTooltip>
             <TooltipTrigger asChild>
@@ -195,7 +183,7 @@ function ConversionFunnelCard() {
             return (
               <div key={index} className="flex flex-col items-center justify-between p-4 space-y-12 text-center">
                 <h3 className="text-sm font-medium text-muted-foreground">{item.stage}</h3>
-                <p className="text-4xl font-bold font-headline">{percentage.toFixed(0)}%</p>
+                <p className="text-4xl font-bold text-accent font-headline">{percentage.toFixed(0)}%</p>
                 <p className="text-lg font-medium text-muted-foreground">{formatNumber(item.value)}</p>
               </div>
             );
@@ -256,9 +244,9 @@ function TrafficFunnel() {
   const icons = [MousePointerClick, Users, ShoppingBag, Target];
 
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
       <CardHeader>
-        <CardTitle className="font-headline">Funil de Tráfego</CardTitle>
+        <CardTitle className="font-headline text-accent">Funil de Tráfego</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center space-y-0">
@@ -313,7 +301,7 @@ function Details() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-4">
-        <h2 className="text-xl font-bold font-headline">Detalhamento</h2>
+        <h2 className="text-xl font-bold font-headline text-accent">Detalhamento</h2>
         <div className="flex-grow" />
         <FilterDropdown label="Campanha" options={["Campanha A", "Campanha B"]} />
         <FilterDropdown label="Conjunto" options={["Conjunto 1", "Conjunto 2"]} />
@@ -325,9 +313,9 @@ function Details() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-3 bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
           <CardHeader>
-            <CardTitle className="font-headline">Métricas de Performance (CTR, CPC, CPM)</CardTitle>
+            <CardTitle className="font-headline text-accent">Métricas de Performance (CTR, CPC, CPM)</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -355,18 +343,18 @@ function Details() {
         <PieChartCard title="Anúncios com Menor CPA" data={detailedMetrics.lowestCpaAds} />
       </div>
 
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
         <CardHeader>
-          <CardTitle className="font-headline">Tabela Comparativa de Campanhas</CardTitle>
+          <CardTitle className="font-headline text-accent">Tabela Comparativa de Campanhas</CardTitle>
         </CardHeader>
         <CardContent>
           <ComparisonTable />
         </CardContent>
       </Card>
 
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
         <CardHeader>
-          <CardTitle className="font-headline">Comparação de Campanhas (Custo x Resultado)</CardTitle>
+          <CardTitle className="font-headline text-accent">Comparação de Campanhas (Custo x Resultado)</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -410,9 +398,9 @@ function FilterDropdown({ label, options }: { label: string; options: string[] }
 
 function PieChartCard({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) {
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-[0_0_20px_#00F7FF99]">
       <CardHeader>
-        <CardTitle className="font-headline">{title}</CardTitle>
+        <CardTitle className="font-headline text-accent">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={250}>
@@ -484,7 +472,7 @@ export default function MetaAdsPage() {
     <div className="text-foreground">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold font-headline">Dashboard Meta Ads</h1>
+          <h1 className="text-3xl font-bold font-headline text-accent">Dashboard Meta Ads</h1>
           <p className="text-muted-foreground">Análise de performance das suas campanhas.</p>
         </div>
       </div>

@@ -13,21 +13,21 @@ function NavLinks() {
     <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
       <Link
         href="/dashboard"
-        className={`flex items-center gap-2 transition-colors hover:text-foreground ${pathname === '/dashboard' ? 'text-foreground' : 'text-muted-foreground'}`}
+        className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname === '/dashboard' ? 'text-accent' : 'text-muted-foreground'}`}
       >
         <LayoutDashboard className="size-4" />
         Dashboard
       </Link>
       <Link
         href="/dashboard/meta"
-        className={`flex items-center gap-2 transition-colors hover:text-foreground ${pathname.startsWith('/dashboard/meta') ? 'text-foreground' : 'text-muted-foreground'}`}
+        className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/meta') ? 'text-accent' : 'text-muted-foreground'}`}
       >
         <Facebook className="size-4" />
         Meta Ads
       </Link>
       <Link
         href="/dashboard/google"
-        className={`flex items-center gap-2 transition-colors hover:text-foreground ${pathname.startsWith('/dashboard/google') ? 'text-foreground' : 'text-muted-foreground'}`}
+        className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/google') ? 'text-accent' : 'text-muted-foreground'}`}
       >
         <Chrome className="size-4" />
         Google Ads
@@ -45,10 +45,10 @@ export default function DashboardLayout({
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50 flex items-center h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-8">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 text-primary p-2 rounded-lg border border-primary/20">
+          <div className="p-2 rounded-lg text-accent" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
             <BrainCircuit className="size-6" />
           </div>
-          <h1 className="text-xl font-bold font-headline text-foreground">
+          <h1 className="text-xl font-bold text-accent font-headline" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
             Traffic Brain
           </h1>
         </div>
