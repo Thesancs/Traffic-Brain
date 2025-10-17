@@ -5,9 +5,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BrainCircuit, Chrome, Facebook, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 function NavLinks() {
   const pathname = usePathname();
+
+  const TikTokIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556v2.177c.144.715.54 1.617 1.235 2.512C10.895 11.39 11.797 12 13 12v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556V6.177c-1.32.016-2.517-.556-3.5-1.556v-2.2c1.32.016 2.517.556 3.5 1.556V0Z"/>
+    </svg>
+  );
+
 
   return (
     <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -25,12 +34,29 @@ function NavLinks() {
         <Facebook className="size-4" />
         Meta Ads
       </Link>
-      <Link
-        href="/dashboard/google"
-        className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/google') ? 'text-accent' : 'text-muted-foreground'}`}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Link
+            href="/dashboard/google"
+            className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/google') ? 'text-accent' : 'text-muted-foreground'}`}
+          >
+            <Chrome className="size-4" />
+            Google Ads
+            <ChevronDown className="size-3" />
+          </Link>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/google/analytics">Analytics</Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+       <Link
+        href="/dashboard/tiktok"
+        className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/tiktok') ? 'text-accent' : 'text-muted-foreground'}`}
       >
-        <Chrome className="size-4" />
-        Google Ads
+        <TikTokIcon />
+        Tiktok Ads
       </Link>
     </nav>
   );
