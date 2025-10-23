@@ -16,17 +16,17 @@ export const overviewKpis = {
 };
 
 export const weeklyPerformance = [
-    { name: '01/09', Gasto: 8000, Faturamento: 25000, Compras: 120, ROAS: 3.1 },
-    { name: '03/09', Gasto: 9500, Faturamento: 30000, Compras: 150, ROAS: 3.15 },
-    { name: '05/09', Gasto: 11000, Faturamento: 35000, Compras: 180, ROAS: 3.18 },
-    { name: '07/09', Gasto: 10000, Faturamento: 32000, Compras: 160, ROAS: 3.2 },
-    { name: '09/09', Gasto: 13000, Faturamento: 45000, Compras: 220, ROAS: 3.46 },
-    { name: '11/09', Gasto: 15000, Faturamento: 55000, Compras: 250, ROAS: 3.66 },
-    { name: '13/09', Gasto: 12000, Faturamento: 40000, Compras: 200, ROAS: 3.33 },
-    { name: '15/09', Gasto: 14000, Faturamento: 48000, Compras: 240, ROAS: 3.42 },
-    { name: '17/09', Gasto: 16000, Faturamento: 60000, Compras: 280, ROAS: 3.75 },
-    { name: '19/09', Gasto: 11000, Faturamento: 38000, Compras: 190, ROAS: 3.45 },
-    { name: '21/09', Gasto: 12500, Faturamento: 42000, Compras: 210, ROAS: 3.36 },
+    { name: '01/09', Gasto: 8000, Faturamento: 25000, Compras: 120, ROAS: 3.1, Checkouts: 300 },
+    { name: '03/09', Gasto: 9500, Faturamento: 30000, Compras: 150, ROAS: 3.15, Checkouts: 350 },
+    { name: '05/09', Gasto: 11000, Faturamento: 35000, Compras: 180, ROAS: 3.18, Checkouts: 400 },
+    { name: '07/09', Gasto: 10000, Faturamento: 32000, Compras: 160, ROAS: 3.2, Checkouts: 380 },
+    { name: '09/09', Gasto: 13000, Faturamento: 45000, Compras: 220, ROAS: 3.46, Checkouts: 500 },
+    { name: '11/09', Gasto: 15000, Faturamento: 55000, Compras: 250, ROAS: 3.66, Checkouts: 550 },
+    { name: '13/09', Gasto: 12000, Faturamento: 40000, Compras: 200, ROAS: 3.33, Checkouts: 450 },
+    { name: '15/09', Gasto: 14000, Faturamento: 48000, Compras: 240, ROAS: 3.42, Checkouts: 520 },
+    { name: '17/09', Gasto: 16000, Faturamento: 60000, Compras: 280, ROAS: 3.75, Checkouts: 600 },
+    { name: '19/09', Gasto: 11000, Faturamento: 38000, Compras: 190, ROAS: 3.45, Checkouts: 420 },
+    { name: '21/09', Gasto: 12500, Faturamento: 42000, Compras: 210, ROAS: 3.36, Checkouts: 480 },
 ];
 
 export type FunnelStageData = {

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, Download, Filter, BarChart } from "lucide-react";
+import { ChevronDown, Download, Filter, BarChart, ShoppingCart, Target, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "./components/date-range-picker";
-import { weeklyPerformance, adSpendDistribution } from "./data";
+import { weeklyPerformance, adSpendDistribution, infoproductFunnelData } from "./data";
 import { formatCurrency, formatNumber, formatDecimal } from "@/lib/formatters";
 import { DashboardLoadingSkeleton } from "./components/dashboard-loading-skeleton";
 import { DashboardErrorState } from "./components/dashboard-error-state";
@@ -36,6 +36,12 @@ export default function MetaAdsPage() {
   
       return () => clearTimeout(timer);
     }, []);
+
+    const totalSpend = 12943.04;
+    const totalPurchases = 400;
+    const initiatedCheckouts = infoproductFunnelData.find(d => d.stage.includes('Checkout'))?.value || 0;
+    const costPerCheckout = initiatedCheckouts > 0 ? totalSpend / initiatedCheckouts : 0;
+    const cpa = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
   
     if (loading) {
       return <DashboardLoadingSkeleton />;
@@ -46,7 +52,7 @@ export default function MetaAdsPage() {
     }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div>
@@ -66,13 +72,18 @@ export default function MetaAdsPage() {
       </div>
 
       {/* Main Content - Single Column Layout */}
-      <div className="flex flex-col gap-4">
+      
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard title="Investimento" value={formatCurrency(12943.04)} change="-28.2%" chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" />
+            <KpiCard title="Investimento" value={formatCurrency(totalSpend)} change="-28.2%" chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" />
             <KpiCard title="Faturamento" value={formatCurrency(18986.46)} change="-22.4%" chartData={weeklyPerformance} chartDataKey="Faturamento" chartColor="hsl(var(--chart-3))" />
-            <KpiCard title="Compras" value={formatNumber(400)} change="-23.8%" chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
+            <KpiCard title="Compras" value={formatNumber(totalPurchases)} change="-23.8%" chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
             <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <KpiCard title="Checkouts Iniciados" value={formatNumber(initiatedCheckouts)} change="-15%" chartData={weeklyPerformance} chartDataKey="Checkouts" chartColor="hsl(var(--chart-5))" icon={<ShoppingCart />}/>
+            <KpiCard title="Custo por Checkout" value={formatCurrency(costPerCheckout)} change="+12%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-1))" icon={<CreditCard />}/>
+            <KpiCard title="CPA (Custo por Compra)" value={formatCurrency(cpa)} change="+5%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-2))" icon={<Target />}/>
         </div>
         
         <TrafficFunnel />
@@ -90,7 +101,7 @@ export default function MetaAdsPage() {
 
         <ComparisonTable />
         
-      </div>
+      
     </div>
   );
 }
