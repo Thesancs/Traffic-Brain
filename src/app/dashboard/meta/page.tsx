@@ -65,19 +65,24 @@ export default function MetaAdsPage() {
         </div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Main Content - Single Column Layout */}
+      <div className="flex flex-col gap-4">
         {/* KPIs */}
-        <KpiCard title="Investimento" value={formatCurrency(12943.04)} change="-28.2%" chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" />
-        <KpiCard title="Faturamento" value={formatCurrency(18986.46)} change="-22.4%" chartData={weeklyPerformance} chartDataKey="Faturamento" chartColor="hsl(var(--chart-3))" />
-        <KpiCard title="Compras" value={formatNumber(400)} change="-23.8%" chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
-        <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard title="Investimento" value={formatCurrency(12943.04)} change="-28.2%" chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" />
+            <KpiCard title="Faturamento" value={formatCurrency(18986.46)} change="-22.4%" chartData={weeklyPerformance} chartDataKey="Faturamento" chartColor="hsl(var(--chart-3))" />
+            <KpiCard title="Compras" value={formatNumber(400)} change="-23.8%" chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
+            <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
+        </div>
         
         <ObjectiveFunnelChart />
 
-        <PerformanceChart />
-
-        <DonutChartCard title="Melhores Anúncios (Conversões)" data={adSpendDistribution} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2">
+                <PerformanceChart />
+            </div>
+            <DonutChartCard title="Melhores Anúncios (Conversões)" data={adSpendDistribution} />
+        </div>
 
         <CampaignTable />
         
