@@ -97,17 +97,22 @@ export default function Overview() {
             <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                    <Pie data={adSpendDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                  <Pie 
+                    data={adSpendDistribution} 
+                    dataKey="value" 
+                    nameKey="name" 
+                    cx="50%" 
+                    cy="50%" 
+                    innerRadius={60}
+                    outerRadius={80} 
+                    paddingAngle={5}
+                    label
+                  >
                     {adSpendDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                     </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--background))",
-                        borderColor: "hsl(var(--border))",
-                      }}
-                    />
+                    <Tooltip />
                 </PieChart>
                 </ResponsiveContainer>
             </CardContent>
