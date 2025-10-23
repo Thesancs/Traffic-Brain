@@ -1,4 +1,5 @@
 
+
 export const overviewKpis = {
   gastos: 75000,
   campanhasAtivas: 12,
@@ -6,16 +7,26 @@ export const overviewKpis = {
   receitaEstimada: 225000,
   leads: 5000,
   checkouts: 1200,
+  funnel: [
+    { name: 'Cliques', value: 5000 },
+    { name: 'Page Views', value: 4800 },
+    { name: 'Checkouts', value: 1561 },
+    { name: 'Compras', value: 400 },
+  ]
 };
 
 export const weeklyPerformance = [
-    { name: 'Seg', Gasto: 80000, Faturamento: 25000 },
-    { name: 'Ter', Gasto: 9500, Faturamento: 30000 },
-    { name: 'Qua', Gasto: 11000, Faturamento: 35000 },
-    { name: 'Qui', Gasto: 10000, Faturamento: 32000 },
-    { name: 'Sex', Gasto: 13000, Faturamento: 45000 },
-    { name: 'Sab', Gasto: 15000, Faturamento: 55000 },
-    { name: 'Dom', Gasto: 12000, Faturamento: 40000 },
+    { name: '01/09', Gasto: 8000, Faturamento: 25000, Compras: 120, ROAS: 3.1 },
+    { name: '03/09', Gasto: 9500, Faturamento: 30000, Compras: 150, ROAS: 3.15 },
+    { name: '05/09', Gasto: 11000, Faturamento: 35000, Compras: 180, ROAS: 3.18 },
+    { name: '07/09', Gasto: 10000, Faturamento: 32000, Compras: 160, ROAS: 3.2 },
+    { name: '09/09', Gasto: 13000, Faturamento: 45000, Compras: 220, ROAS: 3.46 },
+    { name: '11/09', Gasto: 15000, Faturamento: 55000, Compras: 250, ROAS: 3.66 },
+    { name: '13/09', Gasto: 12000, Faturamento: 40000, Compras: 200, ROAS: 3.33 },
+    { name: '15/09', Gasto: 14000, Faturamento: 48000, Compras: 240, ROAS: 3.42 },
+    { name: '17/09', Gasto: 16000, Faturamento: 60000, Compras: 280, ROAS: 3.75 },
+    { name: '19/09', Gasto: 11000, Faturamento: 38000, Compras: 190, ROAS: 3.45 },
+    { name: '21/09', Gasto: 12500, Faturamento: 42000, Compras: 210, ROAS: 3.36 },
 ];
 
 export type FunnelStageData = {
@@ -76,10 +87,10 @@ export const deliveryFunnelData: FunnelStageData[] = [
 
 
 export const adSpendDistribution = [
-  { name: 'Campanha de Vendas', value: 4500, fill: 'hsl(var(--chart-1))' },
-  { name: 'Campanha de Leads', value: 2500, fill: 'hsl(var(--chart-2))' },
-  { name: 'Campanha de Tráfego', value: 2000, fill: 'hsl(var(--chart-3))' },
-  { name: 'Remarketing', value: 1000, fill: 'hsl(var(--chart-4))' },
+  { name: 'Anúncio A', value: 31.8, fill: 'hsl(var(--chart-1))' },
+  { name: 'Anúncio B', value: 19.8, fill: 'hsl(var(--chart-2))' },
+  { name: 'Anúncio C', value: 7.2, fill: 'hsl(var(--chart-3))' },
+  { name: 'Outros', value: 41.2, fill: 'hsl(var(--chart-4))' },
 ];
 
 export const campaignSummary = [
