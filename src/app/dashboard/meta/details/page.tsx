@@ -10,58 +10,45 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, LabelList } from "recharts";
 import { detailedMetrics, weeklyPerformance } from "../data";
-import { GaugeCircle } from "lucide-react";
-
 
 const ConversionRateCard = () => {
     const percentage = 7.6;
     const radius = 50;
     const strokeWidth = 10;
-    const circumference = 2 * Math.PI * radius;
-    // We only want a semi-circle, so we take half the circumference
-    const semiCircumference = circumference / 2;
-    // We need to account for the stroke width in the offset
+    const semiCircumference = Math.PI * radius;
     const strokeDashoffset = semiCircumference - (semiCircumference * percentage) / 100;
   
     return (
       <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
         <CardContent className="p-4 relative flex flex-col items-center justify-center">
-          <svg width="150" height="95" viewBox="0 0 120 75" className="transform -rotate-90">
+          <svg width="150" height="95" viewBox="0 0 120 75">
             <defs>
-                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="hsl(var(--chart-2))" />
-                <stop offset="100%" stopColor="hsl(var(--primary))" />
-                </linearGradient>
+              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(var(--primary))" />
+                <stop offset="100%" stopColor="hsl(var(--chart-2))" />
+              </linearGradient>
             </defs>
             {/* Background semi-circle */}
-            <circle
-              cx="60"
-              cy="60"
-              r={radius}
+            <path
+              d="M 10 60 A 50 50 0 0 1 110 60"
               fill="transparent"
               stroke="hsl(var(--muted-foreground)/0.2)"
               strokeWidth={strokeWidth}
-              strokeDasharray={semiCircumference}
-              strokeDashoffset={0}
-              transform="rotate(-180 60 60)"
               strokeLinecap="round"
             />
             {/* Foreground semi-circle */}
-            <circle
-              cx="60"
-              cy="60"
-              r={radius}
+            <path
+              d="M 10 60 A 50 50 0 0 1 110 60"
               fill="transparent"
               stroke="url(#gaugeGradient)"
               strokeWidth={strokeWidth}
+              strokeLinecap="round"
               strokeDasharray={semiCircumference}
               strokeDashoffset={strokeDashoffset}
-              transform="rotate(-180 60 60)"
-              strokeLinecap="round"
               style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
             />
           </svg>
-          <div className="absolute flex flex-col items-center justify-center">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center mt-[-10px]">
             <div className="text-xs text-muted-foreground">Taxa de Conversão</div>
             <div className="text-3xl font-bold font-headline">7.6%</div>
             <div className="text-xs text-red-400">-7.39%</div>
@@ -85,11 +72,11 @@ const CheckoutConversionCard = () => (
 )
 
 const PerformanceChart = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue h-full">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
       <CardHeader>
         <CardTitle className="font-headline text-accent">Compras vs ROAS</CardTitle>
       </CardHeader>
-      <CardContent className="pt-6 h-[calc(100%-4rem)]">
+      <CardContent className="pt-6 h-[418px]">
         <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={weeklyPerformance} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
                 <defs>
@@ -180,7 +167,7 @@ export default function MetaAdsDetailsPage() {
                 <CheckoutConversionCard />
               </div>
 
-              <div className="lg:col-span-2 h-[500px]">
+              <div className="lg:col-span-2">
                 <PerformanceChart />
               </div>
               
@@ -192,4 +179,3 @@ export default function MetaAdsDetailsPage() {
         </div>
     )
 }
-
