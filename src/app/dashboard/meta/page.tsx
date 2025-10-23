@@ -322,19 +322,25 @@ const FluidFunnelChart = () => {
 const FunnelStage = ({
   stage,
   value,
-  percentage,
+  index,
+  total,
 }: {
   stage: string;
   value: number;
-  percentage: number;
+  index: number;
+  total: number;
 }) => {
+  const maxWidth = 100; // 100%
+  const minWidth = 30; // 30%
+  const width = maxWidth - ((maxWidth - minWidth) / (total - 1)) * index;
+
   return (
     <div className="relative h-16 flex items-center justify-center my-[-1px]">
       <div
         className="absolute inset-0 bg-accent/20 border border-accent/50"
         style={{
-          width: `${percentage}%`,
-          left: `${50 - percentage / 2}%`,
+          width: `${width}%`,
+          left: `${50 - width / 2}%`,
           clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0% 100%)',
         }}
       ></div>
@@ -368,7 +374,6 @@ const ConversionRate = ({ value }: { value: number }) => (
   );
 
 function TrafficFunnel() {
-    const maxFunnelValue = Math.max(...funnelData.map(item => item.value));
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
       <CardHeader>
@@ -378,12 +383,9 @@ function TrafficFunnel() {
         <div className="grid grid-cols-[1fr_auto_1fr] gap-x-4 items-center">
            {/* Stages */}
            <div className="space-y-2">
-            {funnelData.map((item) => {
-              const percentage = maxFunnelValue > 0 ? (item.value / maxFunnelValue) * 100 : 0;
-              return (
-                <FunnelStage key={item.stage} stage={item.stage} value={item.value} percentage={Math.max(percentage, 15)} />
-              );
-            })}
+            {funnelData.map((item, index) => (
+              <FunnelStage key={item.stage} stage={item.stage} value={item.value} index={index} total={funnelData.length} />
+            ))}
           </div>
 
           {/* Conversion Rates */}
@@ -615,61 +617,61 @@ function ComparisonTable() {
 }
 
 const DashboardLoadingSkeleton = () => (
-  <div className="space-y-8">
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
-      {[...Array(6)].map((_, i) => (
-        <Card key={i} className="bg-card/60 backdrop-blur-sm border-border/30">
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        {[...Array(6)].map((_, i) => (
+          <Card key={i} className="bg-card/60 backdrop-blur-sm border-border/30">
+            <CardHeader>
+              <Skeleton className="h-4 w-2/3" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="w-1/2 h-8" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-8">
+        <Card className="bg-card/60 backdrop-blur-sm border-border/30">
           <CardHeader>
-            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-6 w-1/2" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="w-1/2 h-8" />
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full" />
+              ))}
+            </div>
           </CardContent>
         </Card>
-      ))}
+        <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+          <CardHeader>
+            <Skeleton className="h-6 w-1/3" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[250px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
+      <div className="grid lg:grid-cols-3 gap-8">
+        <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
+          <CardHeader>
+            <Skeleton className="h-6 w-1/3" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
+        <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+          <CardHeader>
+            <Skeleton className="h-6 w-1/2" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[300px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
     </div>
-    <div className="grid grid-cols-1 gap-8">
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-        <CardHeader>
-          <Skeleton className="h-6 w-1/2" />
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-        <CardHeader>
-          <Skeleton className="h-6 w-1/3" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[250px] w-full" />
-        </CardContent>
-      </Card>
-    </div>
-    <div className="grid lg:grid-cols-3 gap-8">
-      <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
-        <CardHeader>
-          <Skeleton className="h-6 w-1/3" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
-        </CardContent>
-      </Card>
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-        <CardHeader>
-          <Skeleton className="h-6 w-1/2" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[300px] w-full" />
-        </CardContent>
-      </Card>
-    </div>
-  </div>
-);
+  );
 
 const DashboardErrorState = ({ message }: { message: string }) => (
   <Alert variant="destructive" className="bg-destructive/10 border-destructive/50">
