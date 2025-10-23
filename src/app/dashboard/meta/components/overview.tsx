@@ -57,7 +57,7 @@ export default function Overview() {
       <div className="grid lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
           <CardHeader>
-            <CardTitle className="font-headline text-accent">Gasto, Leads e Receita</CardTitle>
+            <CardTitle className="font-headline text-accent">Gastos e Faturamento</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -65,7 +65,6 @@ export default function Overview() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} />
                 <YAxis yAxisId="left" orientation="left" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} />
-                <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-2))" tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -73,8 +72,7 @@ export default function Overview() {
                   }}
                 />
                 <Line yAxisId="left" type="monotone" dataKey="Gasto" stroke="hsl(var(--chart-1))" strokeWidth={2} />
-                <Line yAxisId="right" type="monotone" dataKey="Leads" stroke="hsl(var(--chart-2))" strokeWidth={2} />
-                <Line yAxisId="left" type="monotone" dataKey="Receita" stroke="hsl(var(--chart-3))" strokeWidth={2} />
+                <Line yAxisId="left" type="monotone" dataKey="Faturamento" stroke="hsl(var(--chart-3))" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

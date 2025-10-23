@@ -9,13 +9,13 @@ export const overviewKpis = {
 };
 
 export const weeklyPerformance = [
-  { name: 'Seg', Gasto: 400, Leads: 24, Receita: 240 },
-  { name: 'Ter', Gasto: 300, Leads: 13, Receita: 221 },
-  { name: 'Qua', Gasto: 200, Leads: 98, Receita: 229 },
-  { name: 'Qui', Gasto: 278, Leads: 39, Receita: 200 },
-  { name: 'Sex', Gasto: 189, Leads: 48, Receita: 218 },
-  { name: 'Sab', Gasto: 239, Leads: 38, Receita: 250 },
-  { name: 'Dom', Gasto: 349, Leads: 43, Receita: 210 },
+  { name: 'Seg', Gasto: 400, Faturamento: 240 },
+  { name: 'Ter', Gasto: 300, Faturamento: 221 },
+  { name: 'Qua', Gasto: 200, Faturamento: 229 },
+  { name: 'Qui', Gasto: 278, Faturamento: 200 },
+  { name: 'Sex', Gasto: 189, Faturamento: 218 },
+  { name: 'Sab', Gasto: 239, Faturamento: 250 },
+  { name: 'Dom', Gasto: 349, Faturamento: 210 },
 ];
 
 export type FunnelStageData = {
