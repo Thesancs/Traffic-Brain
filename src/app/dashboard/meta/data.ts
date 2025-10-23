@@ -2,10 +2,10 @@
 export const overviewKpis = {
   gastos: 3497.07,
   campanhasAtivas: 67,
-  impressoes: 112185,
+  impressoes: 38079,
   receitaEstimada: 4710.12,
   leads: 223,
-  checkouts: 67,
+  checkouts: 116,
 };
 
 export const weeklyPerformance = [
@@ -18,11 +18,22 @@ export const weeklyPerformance = [
   { name: 'Dom', Gasto: 349, Leads: 43, Receita: 210 },
 ];
 
-export const funnelData = [
-  { stage: 'Cliques', value: 10000 },
-  { stage: 'Leads', value: 2000 },
-  { stage: 'Checkouts', value: 500 },
-  { stage: 'Vendas', value: 100 },
+export type FunnelStageData = {
+  stage: string;
+  value: number;
+  costLabel: string;
+  costValue: number;
+  costChange?: number;
+};
+
+export const funnelData: FunnelStageData[] = [
+    { stage: 'Impressões', value: 38079, costLabel: 'CPM', costValue: 40.61, costChange: 182.2 },
+    { stage: 'Cliques no Link', value: 1032, costLabel: 'Custo/Cliques no Link', costValue: 1.50, costChange: 157.0 },
+    { stage: 'Page View', value: 918, costLabel: 'Custo/Page View', costValue: 1.68, costChange: 94.8 },
+    { stage: 'Iniciou Checkout', value: 116, costLabel: 'Custo/Iniciou Checkout', costValue: 13.33 },
+    { stage: 'Compras', value: 44, costLabel: 'Custo/Compras', costValue: 35.14 },
+    { stage: 'Vendas', value: 0, costLabel: 'Custo/Venda', costValue: 0},
+    { stage: 'Leads', value: 0, costLabel: 'Custo/Lead', costValue: 0 },
 ];
 
 export const adSpendDistribution = [
@@ -81,11 +92,9 @@ export type ConversionFunnelStage = {
 
 // Data based on the reference image
 export const conversionFunnelData: ConversionFunnelStage[] = [
-  { stage: 'Cliques', value: 20 },
-  { stage: 'Vis. Página', value: 15 },
-  { stage: 'ICs', value: 8 },
-  { stage: 'Vendas Inic.', value: 5 },
-  { stage: 'Vendas Apr.', value: 2 },
+  { stage: 'Cliques', value: 15 },
+  { stage: 'Vis. Página', value: 10 },
+  { stage: 'ICs', value: 1 },
+  { stage: 'Vendas Inic.', value: 12 },
+  { stage: 'Vendas Apr.', value: 4 },
 ];
-
-    

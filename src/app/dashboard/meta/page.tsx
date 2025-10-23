@@ -77,11 +77,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 
-const formatCurrency = (value: number) =>
+const formatCurrency = (value: number, includeSymbol = true) =>
   new Intl.NumberFormat("pt-BR", {
-    style: "currency",
+    style: includeSymbol ? "currency" : "decimal",
     currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(value);
+
 const formatNumber = (value: number) =>
   new Intl.NumberFormat("pt-BR").format(value);
 
@@ -97,10 +100,13 @@ function Overview() {
         <DashboardCard title="Checkouts" value={formatNumber(overviewKpis.checkouts)} icon={<ShoppingBag />} />
       </div>
 
-      <FluidFunnelChart />
+      <div className="grid lg:grid-cols-5 gap-8">
+        <FluidFunnelChart />
+        <TrafficFunnel />
+      </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
+        <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
           <CardHeader>
             <CardTitle className="font-headline text-accent">Gasto, Leads e Receita</CardTitle>
           </CardHeader>
@@ -124,41 +130,39 @@ function Overview() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <TrafficFunnel />
+        
+        <Card className="lg:col-span-1 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+            <CardHeader>
+                <CardTitle className="font-headline text-accent">Distribuição de Gastos</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                    <Pie data={adSpendDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                    {adSpendDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                    </Pie>
+                    <Tooltip
+                    contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        borderColor: 'hsl(var(--border))',
+                    }}
+                    />
+                </PieChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
       </div>
 
-      <div className="grid lg:grid-cols-5 gap-8">
-        <Card className="lg:col-span-2 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
-          <CardHeader>
-            <CardTitle className="font-headline text-accent">Distribuição de Gastos por Anúncio</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={adSpendDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
-                  {adSpendDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--background))',
-                    borderColor: 'hsl(var(--border))',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
-          <CardHeader>
-            <CardTitle className="font-headline text-accent">Resumo das Campanhas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CampaignSummaryTable />
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+        <CardHeader>
+          <CardTitle className="font-headline text-accent">Resumo das Campanhas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <CampaignSummaryTable />
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -170,10 +174,14 @@ const FluidFunnelChart = () => {
   const getPathD = (data: { stage: string; value: number }[], width: number, height: number): string => {
     if (data.length < 2) return "";
     
-    const points = data.map((d, i) => ({
-      x: (i / (data.length - 1)) * width,
-      y: d.value > 0 ? (d.value / maxValue) * (height / 2) * 0.8 + (height * 0.1) : 0
-    }));
+    const points = data.map((d, i) => {
+      // The y value is proportional to the data value, creating the funnel shape
+      const y = d.value > 0 ? (d.value / maxValue) * (height / 2) * 0.8 + (height * 0.1) : 0;
+      return {
+        x: (i / (data.length - 1)) * width,
+        y: y
+      };
+    });
 
     // Build the top curve
     let topPath = `M ${points[0].x},${height / 2 - points[0].y}`;
@@ -187,7 +195,7 @@ const FluidFunnelChart = () => {
       topPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 - end.y}`;
     }
 
-    // Build the bottom curve
+    // Build the bottom curve, mirroring the top
     let bottomPath = ` L ${points[points.length - 1].x},${height / 2 + points[points.length - 1].y}`;
     for (let i = points.length - 1; i > 0; i--) {
       const start = points[i];
@@ -205,7 +213,7 @@ const FluidFunnelChart = () => {
 
 
   return (
-    <Card className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg hover:shadow-neon-blue transition-all duration-300 ease-in-out">
+    <Card className="lg:col-span-3 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-headline text-accent">Funil de Conversão (Meta Ads)</CardTitle>
         <TooltipProvider>
@@ -280,69 +288,78 @@ const FluidFunnelChart = () => {
 const FunnelStage = ({
   stage,
   value,
-  percentage,
-  color,
-  icon: Icon,
 }: {
   stage: string;
   value: number;
-  percentage: number;
-  color: string;
-  icon: React.ElementType;
 }) => {
-  const width = `${percentage}%`;
-
   return (
-    <div className="relative flex items-center justify-center group">
-      <div
-        className="h-16 transition-all duration-300 ease-in-out"
-        style={{
-          width: width,
-          backgroundColor: color,
-          clipPath:
-            'polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%)',
-        }}
-      />
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4" />
-          <span className="text-sm font-semibold">{stage}</span>
-        </div>
-        <span className="text-lg font-bold font-headline">
-          {formatNumber(value)}
-        </span>
+    <div className="relative w-full h-16 bg-yellow-400/80 flex items-center justify-center text-center text-background font-bold"
+         style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 10% 100%)' }}>
+      <div>
+        <p className="text-xs font-normal">{stage}</p>
+        <p className="text-xl">{formatNumber(value)}</p>
       </div>
     </div>
   );
 };
 
-function TrafficFunnel() {
-  const maxCliques = funnelData.length > 0 ? funnelData[0].value : 0;
-  const colors = [
-    'hsl(var(--chart-1))',
-    'hsl(var(--chart-2))',
-    'hsl(var(--chart-3))',
-    'hsl(var(--chart-4))',
-  ];
-  const icons = [MousePointerClick, Users, ShoppingBag, Target];
+const FunnelMetric = ({ label, value, change, isCurrency = true }: { label: string; value: number; change?: number, isCurrency?: boolean }) => (
+    <div className="text-right">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-xl font-bold">{isCurrency ? formatCurrency(value) : value}</p>
+        {change && (
+            <p className={cn("text-xs", change > 0 ? 'text-green-400' : 'text-red-400')}>
+                {change > 0 ? '▲' : '▼'} {change.toFixed(1)}%
+            </p>
+        )}
+         {value === 0 && <p className="text-xs text-muted-foreground">N/A</p>}
+    </div>
+);
 
+
+const ConversionRate = ({ value }: { value: number }) => (
+    <div className="relative h-16 flex items-center justify-center">
+      <div className="absolute w-px h-full bg-border -z-10"></div>
+      <span className="bg-background px-2 text-sm text-yellow-400 border border-yellow-400/50 rounded-full">{value.toFixed(2)}%</span>
+    </div>
+  );
+
+function TrafficFunnel() {
   return (
-    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
+    <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
       <CardHeader>
-        <CardTitle className="font-headline text-accent">Funil de Tráfego</CardTitle>
+        <CardTitle className="font-headline text-accent">Funil Geral</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          {funnelData.map((item, index) => (
-            <FunnelStage
-              key={item.stage}
-              stage={item.stage}
-              value={item.value}
-              percentage={maxCliques > 0 ? (item.value / maxCliques) * 80 + 20 : 0}
-              color={colors[index % colors.length]}
-              icon={icons[index % icons.length]}
-            />
-          ))}
+        <div className="grid grid-cols-[1fr_auto_1fr] gap-x-4 items-center">
+           {/* Stages */}
+          <div className="space-y-[-1px]">
+            {funnelData.map((item) => (
+                <FunnelStage key={item.stage} stage={item.stage} value={item.value} />
+            ))}
+          </div>
+
+          {/* Conversion Rates */}
+          <div className="space-y-2">
+            {funnelData.slice(0, -1).map((item, index) => {
+                 const nextItem = funnelData[index + 1];
+                 const rate = item.value > 0 ? (nextItem.value / item.value) * 100 : 0;
+                 return <ConversionRate key={index} value={rate} />;
+            })}
+          </div>
+
+          {/* KPIs */}
+          <div className="space-y-4">
+             {funnelData.map((item, index) => (
+                <FunnelMetric 
+                    key={item.costLabel}
+                    label={item.costLabel}
+                    value={item.costValue}
+                    change={item.costChange}
+                    isCurrency={item.costLabel !== 'CPM'}
+                />
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -396,7 +413,7 @@ function Details() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-3 bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
+        <Card className="lg:col-span-3 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
           <CardHeader>
             <CardTitle className="font-headline text-accent">Métricas de Performance (CTR, CPC, CPM)</CardTitle>
           </CardHeader>
@@ -426,7 +443,7 @@ function Details() {
         <PieChartCard title="Anúncios com Menor CPA" data={detailedMetrics.lowestCpaAds} />
       </div>
 
-      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
+      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
         <CardHeader>
           <CardTitle className="font-headline text-accent">Tabela Comparativa de Campanhas</CardTitle>
         </CardHeader>
@@ -435,7 +452,7 @@ function Details() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
+      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
         <CardHeader>
           <CardTitle className="font-headline text-accent">Comparação de Campanhas (Custo x Resultado)</CardTitle>
         </CardHeader>
@@ -481,7 +498,7 @@ function FilterDropdown({ label, options }: { label: string; options: string[] }
 
 function PieChartCard({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) {
   return (
-    <Card className="bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out hover:shadow-neon-blue">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
       <CardHeader>
         <CardTitle className="font-headline text-accent">{title}</CardTitle>
       </CardHeader>
@@ -492,7 +509,7 @@ function PieChartCard({ title, data }: { title: string; data: { name: string; va
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
-              <LabelList dataKey="name" position="outside" fill="#fff" />
+              <LabelList dataKey="name" position="outside" fill="hsl(var(--foreground))" stroke="none" />
             </Pie>
             <Tooltip
               contentStyle={{
@@ -564,14 +581,26 @@ const DashboardLoadingSkeleton = () => (
           </Card>
         ))}
       </div>
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-        <CardHeader>
-          <Skeleton className="h-6 w-1/4" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-[250px] w-full" />
-        </CardContent>
-      </Card>
+      <div className="grid lg:grid-cols-5 gap-8">
+        <Card className="lg:col-span-3 bg-card/60 backdrop-blur-sm border-border/30">
+            <CardHeader>
+                <Skeleton className="h-6 w-1/3" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-[250px] w-full" />
+            </CardContent>
+        </Card>
+        <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
+            <CardHeader>
+                <Skeleton className="h-6 w-1/2" />
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-2">
+                    {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                </div>
+            </CardContent>
+        </Card>
+      </div>
         <div className="grid lg:grid-cols-3 gap-8">
             <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
                 <CardHeader>
@@ -586,9 +615,7 @@ const DashboardLoadingSkeleton = () => (
                     <Skeleton className="h-6 w-1/2" />
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-2">
-                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
-                    </div>
+                    <Skeleton className="h-[300px] w-full" />
                 </CardContent>
             </Card>
         </div>
@@ -607,16 +634,10 @@ export default function MetaAdsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     
-    // This simulates fetching data from an API.
     useEffect(() => {
       console.log("[MetaAdsDashboard]", "Iniciando simulação de fetch de dados.");
       const timer = setTimeout(() => {
         try {
-          // To simulate an error, you could throw an error here randomly
-          // if (Math.random() > 0.8) throw new Error("Falha na rede simulada");
-          
-          // In a real app, you would fetch data here and setData().
-          // Since we are still using mock data, we just set loading to false.
           console.log("[MetaAdsDashboard]", "Dados (mock) carregados com sucesso.");
         } catch (e: any) {
           console.error("[MetaAdsDashboard]", "Erro simulado ao carregar dados:", e.message);
