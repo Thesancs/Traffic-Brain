@@ -6,6 +6,7 @@ import Overview from "./components/overview";
 import Details from "./components/details";
 import { DashboardLoadingSkeleton } from "./components/dashboard-loading-skeleton";
 import { DashboardErrorState } from "./components/dashboard-error-state";
+import { DateRangePicker } from "./components/date-range-picker";
 
 
 export default function MetaAdsPage() {
@@ -36,16 +37,19 @@ export default function MetaAdsPage() {
                 </div>
             </div>
             <Tabs defaultValue="overview">
-                <TabsList className="mb-4">
-                <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-                <TabsTrigger value="details">Detalhamento</TabsTrigger>
+              <div className="flex items-center justify-between mb-4">
+                <TabsList>
+                  <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                  <TabsTrigger value="details">Detalhamento</TabsTrigger>
                 </TabsList>
-                <TabsContent value="overview">
+                <DateRangePicker />
+              </div>
+              <TabsContent value="overview">
+                  <DashboardLoadingSkeleton />
+              </TabsContent>
+              <TabsContent value="details">
                     <DashboardLoadingSkeleton />
-                </TabsContent>
-                <TabsContent value="details">
-                     <DashboardLoadingSkeleton />
-                </TabsContent>
+              </TabsContent>
             </Tabs>
         </div>
       )
@@ -65,10 +69,13 @@ export default function MetaAdsPage() {
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList className="mb-4">
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="details">Detalhamento</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between mb-4">
+          <TabsList>
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="details">Detalhamento</TabsTrigger>
+          </TabsList>
+          <DateRangePicker />
+        </div>
         <TabsContent value="overview">
           <Overview />
         </TabsContent>
