@@ -14,6 +14,7 @@ import { DashboardLoadingSkeleton } from "./components/dashboard-loading-skeleto
 import { DashboardErrorState } from "./components/dashboard-error-state";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { FunnelChart } from "./components/funnel-chart";
 
 // KPI Card Mini Chart
 const KpiChart = ({ data, dataKey, color }: { data: any[], dataKey: string, color: string }) => (
@@ -48,55 +49,6 @@ const KpiCard = ({ title, value, change, chartData, chartDataKey, chartColor }: 
     </Card>
   );
 };
-
-// Funil de Tráfego
-const TrafficFunnel = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 col-span-1 md:col-span-2 lg:col-span-2 flex flex-col justify-between">
-        <CardHeader>
-            <CardTitle className="font-headline text-accent">Funil de Tráfego</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-grow flex items-center justify-center">
-            <div className="w-full max-w-sm relative">
-                {/* Funnel visual */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full">
-                    <div className="w-full h-full" style={{ perspective: '300px' }}>
-                        <div className="w-full h-full bg-gradient-to-b from-accent/20 to-accent/5" style={{ transform: 'rotateX(50deg)', transformOrigin: 'top center' }} />
-                    </div>
-                    <div className="absolute -top-1 left-0 w-full h-2 rounded-full bg-accent/50 opacity-50" />
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[102%] h-2 rounded-full bg-accent opacity-80" />
-                </div>
-                
-                {/* Funnel Stages */}
-                <div className="relative z-10 space-y-4 text-center text-white p-4">
-                    {overviewKpis.funnel.map((stage, i) => (
-                        <div key={stage.name} className="flex justify-around items-center w-full" style={{paddingLeft: `${i*10}%`, paddingRight: `${i*10}%`}}>
-                            <div className="w-full">
-                                <p className="font-bold text-lg">{formatNumber(stage.value)}</p>
-                                <p className="text-xs text-muted-foreground">{stage.name}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </CardContent>
-         <CardContent>
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div>
-                    <p className="text-muted-foreground">Add to Cart</p>
-                    <p className="font-bold">{formatNumber(0)}</p>
-                </div>
-                <div>
-                    <p className="text-muted-foreground">Frequência</p>
-                    <p className="font-bold">{formatDecimal(2.98)}</p>
-                </div>
-                <div>
-                    <p className="text-muted-foreground">CPM</p>
-                    <p className="font-bold">{formatCurrency(21.81)}</p>
-                </div>
-            </div>
-        </CardContent>
-    </Card>
-);
 
 // Donut Chart
 const DonutChartCard = ({ title, data }: { title: string, data: { name: string, value: number, fill: string }[] }) => (
@@ -238,7 +190,7 @@ export default function MetaAdsPage() {
         <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
         
         {/* Funnel */}
-        <TrafficFunnel />
+        <FunnelChart />
 
         {/* Charts */}
         <PerformanceChart />
