@@ -9,7 +9,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import React, { useEffect, useState, useMemo } from "react";
-import { Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Area, AreaChart, Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,7 +113,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <AreaChart
               accessibilityLayer
               data={data}
               margin={{
@@ -121,6 +121,20 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                 right: 12,
               }}
             >
+              <defs>
+                  <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-spend)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-spend)" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0}/>
+                  </linearGradient>
+                   <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-conversions)" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="var(--color-conversions)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
               <XAxis
                 dataKey="date"
@@ -153,6 +167,34 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                       borderColor: 'hsl(var(--border))',
                     }}
               />
+              <Area 
+                yAxisId="left" 
+                type="natural" 
+                dataKey="spend" 
+                stroke="var(--color-spend)" 
+                fill="url(#colorSpend)"
+                stackId="1"
+                strokeWidth={2} 
+              />
+              <Area 
+                yAxisId="left" 
+                type="natural" 
+                dataKey="revenue" 
+                stroke="var(--color-revenue)" 
+                fill="url(#colorRevenue)"
+                stackId="1"
+                strokeWidth={2}
+              />
+                <Area 
+                yAxisId="right" 
+                type="natural" 
+                dataKey="conversions" 
+                stroke="var(--color-conversions)" 
+                fill="url(#colorConversions)"
+                stackId="2"
+                strokeWidth={2}
+              />
+
               <Line
                 dataKey="spend"
                 type="natural"
@@ -160,6 +202,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                 strokeWidth={2}
                 dot={false}
                 yAxisId="left"
+                style={{filter: 'drop-shadow(0 0 4px hsl(var(--chart-1)))'}}
               />
               <Line
                 dataKey="revenue"
@@ -168,6 +211,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                 strokeWidth={2}
                 dot={false}
                 yAxisId="left"
+                style={{filter: 'drop-shadow(0 0 4px hsl(var(--chart-3)))'}}
               />
               <Line
                 dataKey="conversions"
@@ -176,8 +220,9 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                 strokeWidth={2}
                 dot={false}
                 yAxisId="right"
+                style={{filter: 'drop-shadow(0 0 4px hsl(var(--chart-2)))'}}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
