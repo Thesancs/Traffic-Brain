@@ -1,3 +1,4 @@
+
 "use client";
 
 import RetroGrid from "@/components/magicui/retro-grid";
@@ -8,6 +9,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Facebook, Chrome, Plug } from "lucide-react";
+import { useState, useEffect } from "react";
+import { PlatformLoading } from "./components/platform-loading";
 
 const TikTokIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
@@ -50,6 +53,18 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // Simulate loading time
+
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <Sidebar />
@@ -71,7 +86,8 @@ export default function DashboardLayout({
         </header>
         <main className="relative flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
            <RetroGrid />
-           <div className="relative z-10">{children}</div>
+           {loading && <PlatformLoading />}
+           <div className={cn("relative z-10", loading && "opacity-0")}>{children}</div>
         </main>
       </div>
     </div>
