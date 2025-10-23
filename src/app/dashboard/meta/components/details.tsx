@@ -9,20 +9,15 @@ import { FilterDropdown } from "./filter-dropdown";
 import { PieChartCard } from "./pie-chart-card";
 import { ComparisonTable } from "./comparison-table";
 import { VideoRetentionFunnel } from "./video-retention-funnel";
+import { DateRangePicker } from "./date-range-picker";
 
 export default function Details() {
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-center gap-4">
-        <h2 className="text-xl font-bold font-headline text-accent">Detalhamento</h2>
-        <div className="flex-grow" />
         <FilterDropdown label="Campanha" options={["Campanha A", "Campanha B"]} />
         <FilterDropdown label="Conjunto" options={["Conjunto 1", "Conjunto 2"]} />
         <FilterDropdown label="Anúncio" options={["Anúncio X", "Anúncio Y"]} />
-        <Button variant="outline">
-          <CalendarIcon className="w-4 h-4 mr-2" />
-          Período
-        </Button>
       </div>
       
       <VideoRetentionFunnel />
