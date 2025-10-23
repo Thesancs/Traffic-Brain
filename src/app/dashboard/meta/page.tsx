@@ -89,6 +89,30 @@ const formatNumber = (value: number) =>
   new Intl.NumberFormat("pt-BR").format(value);
 
 function Overview() {
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            try {
+                // Simulate successful data loading
+            } catch (e: any) {
+                setError(e.message || "An unknown error occurred.");
+            } finally {
+                setLoading(false);
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (loading) {
+        return <DashboardLoadingSkeleton />;
+    }
+
+    if (error) {
+        return <DashboardErrorState message={error} />;
+    }
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -172,18 +196,17 @@ const FluidFunnelChart = () => {
   const maxValue = Math.max(...data.map(d => d.value));
 
   const getPathD = (data: { stage: string; value: number }[], width: number, height: number): string => {
-    if (data.length < 2) return "";
-    
+    if (data.length === 0) return "";
+  
     const points = data.map((d, i) => {
-      // The y value is proportional to the data value, creating the funnel shape
-      const y = d.value > 0 ? (d.value / maxValue) * (height / 2) * 0.8 + (height * 0.1) : 0;
+      const stageValue = d.value > 0 ? d.value : 0;
+      const y = (stageValue / maxValue) * (height / 2) * 0.9 + (height * 0.05); // Use 90% of height, with 5% padding
       return {
         x: (i / (data.length - 1)) * width,
         y: y
       };
     });
-
-    // Build the top curve
+  
     let topPath = `M ${points[0].x},${height / 2 - points[0].y}`;
     for (let i = 0; i < points.length - 1; i++) {
       const start = points[i];
@@ -194,8 +217,7 @@ const FluidFunnelChart = () => {
       const cp2y = height / 2 - end.y;
       topPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 - end.y}`;
     }
-
-    // Build the bottom curve, mirroring the top
+  
     let bottomPath = ` L ${points[points.length - 1].x},${height / 2 + points[points.length - 1].y}`;
     for (let i = points.length - 1; i > 0; i--) {
       const start = points[i];
@@ -207,7 +229,7 @@ const FluidFunnelChart = () => {
       bottomPath += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${height / 2 + end.y}`;
     }
     bottomPath += " Z";
-
+  
     return topPath + bottomPath;
   };
 
@@ -288,16 +310,25 @@ const FluidFunnelChart = () => {
 const FunnelStage = ({
   stage,
   value,
+  percentage,
 }: {
   stage: string;
   value: number;
+  percentage: number;
 }) => {
   return (
-    <div className="relative w-full h-16 bg-yellow-400/80 flex items-center justify-center text-center text-background font-bold"
-         style={{ clipPath: 'polygon(0 0, 100% 0, 90% 100%, 10% 100%)' }}>
-      <div>
-        <p className="text-xs font-normal">{stage}</p>
-        <p className="text-xl">{formatNumber(value)}</p>
+    <div className="relative h-16 flex items-center justify-center my-[-1px]">
+      <div
+        className="absolute inset-0 bg-accent/20 border border-accent/50"
+        style={{
+          width: `${percentage}%`,
+          left: `${50 - percentage / 2}%`,
+          clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0% 100%)',
+        }}
+      ></div>
+      <div className="relative z-10 text-center">
+        <p className="text-xs font-normal text-accent">{stage}</p>
+        <p className="text-xl font-bold font-headline">{formatNumber(value)}</p>
       </div>
     </div>
   );
@@ -320,11 +351,12 @@ const FunnelMetric = ({ label, value, change, isCurrency = true }: { label: stri
 const ConversionRate = ({ value }: { value: number }) => (
     <div className="relative h-16 flex items-center justify-center">
       <div className="absolute w-px h-full bg-border -z-10"></div>
-      <span className="bg-background px-2 text-sm text-yellow-400 border border-yellow-400/50 rounded-full">{value.toFixed(2)}%</span>
+      <span className="bg-background px-2 text-sm text-accent border border-accent/50 rounded-full">{value.toFixed(2)}%</span>
     </div>
   );
 
 function TrafficFunnel() {
+    const maxFunnelValue = Math.max(...funnelData.map(item => item.value));
   return (
     <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
       <CardHeader>
@@ -333,10 +365,13 @@ function TrafficFunnel() {
       <CardContent>
         <div className="grid grid-cols-[1fr_auto_1fr] gap-x-4 items-center">
            {/* Stages */}
-          <div className="space-y-[-1px]">
-            {funnelData.map((item) => (
-                <FunnelStage key={item.stage} stage={item.stage} value={item.value} />
-            ))}
+           <div className="space-y-2">
+            {funnelData.map((item) => {
+              const percentage = maxFunnelValue > 0 ? (item.value / maxFunnelValue) * 100 : 0;
+              return (
+                <FunnelStage key={item.stage} stage={item.stage} value={item.value} percentage={Math.max(percentage, 15)} />
+              );
+            })}
           </div>
 
           {/* Conversion Rates */}
@@ -509,7 +544,7 @@ function PieChartCard({ title, data }: { title: string; data: { name: string; va
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
-              <LabelList dataKey="name" position="outside" fill="hsl(var(--foreground))" stroke="none" />
+              <LabelList dataKey="name" position="outside" fill="hsl(var(--foreground))" stroke="none" className="fill-foreground" />
             </Pie>
             <Tooltip
               contentStyle={{
@@ -635,12 +670,10 @@ export default function MetaAdsPage() {
     const [error, setError] = useState<string | null>(null);
     
     useEffect(() => {
-      console.log("[MetaAdsDashboard]", "Iniciando simulação de fetch de dados.");
       const timer = setTimeout(() => {
         try {
-          console.log("[MetaAdsDashboard]", "Dados (mock) carregados com sucesso.");
+          // Data fetch simulation
         } catch (e: any) {
-          console.error("[MetaAdsDashboard]", "Erro simulado ao carregar dados:", e.message);
           setError(e.message || "Ocorreu um erro desconhecido.");
         } finally {
           setLoading(false);
@@ -651,7 +684,28 @@ export default function MetaAdsPage() {
     }, []);
   
     if (loading) {
-      return <DashboardLoadingSkeleton />;
+      return (
+        <div className="space-y-8">
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                <h1 className="text-3xl font-bold font-headline text-accent">Dashboard Meta Ads</h1>
+                <p className="text-muted-foreground">Análise de performance das suas campanhas.</p>
+                </div>
+            </div>
+            <Tabs defaultValue="overview">
+                <TabsList className="mb-4">
+                <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+                <TabsTrigger value="details">Detalhamento</TabsTrigger>
+                </TabsList>
+                <TabsContent value="overview">
+                    <DashboardLoadingSkeleton />
+                </TabsContent>
+                <TabsContent value="details">
+                     <DashboardLoadingSkeleton />
+                </TabsContent>
+            </Tabs>
+        </div>
+      )
     }
   
     if (error) {
@@ -682,3 +736,5 @@ export default function MetaAdsPage() {
     </div>
   );
 }
+
+    
