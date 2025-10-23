@@ -64,7 +64,7 @@ export default function Overview() {
               <LineChart data={weeklyPerformance}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                <YAxis yAxisId="left" orientation="left" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} />
+                <YAxis yAxisId="left" orientation="left" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} domain={[0, 100000]} />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
