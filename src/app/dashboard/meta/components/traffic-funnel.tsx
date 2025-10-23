@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { funnelDataSets, FunnelStageData, FunnelType } from "../data";
-import { formatCurrency, formatNumber } from "@/lib/formatters";
+import { formatCurrency, formatNumber, formatDecimal } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -65,15 +65,6 @@ const ConversionRate = ({ value }: { value: number }) => (
 export function TrafficFunnel() {
   const [activeFunnel, setActiveFunnel] = useState<FunnelType>('Infoproduto');
   const funnelData = funnelDataSets[activeFunnel];
-
-  const formatDecimal = (value: number) => {
-    // CPM doesn't need to be currency
-    if (value > 10) return formatNumber(value);
-    return new Intl.NumberFormat("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  }
 
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
