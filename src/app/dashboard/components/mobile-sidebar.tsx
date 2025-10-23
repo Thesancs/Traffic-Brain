@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -18,7 +19,7 @@ const platformNav = {
         { name: "Analytics", href: "/dashboard/google/analytics", icon: <FileText className="h-4 w-4" /> },
     ],
     tiktok: [
-        // { name: "Visão Geral", href: "/dashboard/tiktok", icon: <Telescope className="h-4 w-4" /> },
+        { name: "Visão Geral", href: "/dashboard/tiktok", icon: <Telescope className="h-4 w-4" /> },
     ],
     integrations: [
         // { name: "Visão Geral", href: "/dashboard/integrations", icon: <Telescope className="h-4 w-4" /> },
