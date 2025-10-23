@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, LabelList } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function DonutChartCard({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) {
@@ -28,7 +28,6 @@ export function DonutChartCard({ title, data }: { title: string; data: { name: s
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} style={{filter: `drop-shadow(0 0 5px ${entry.fill})`}} />
               ))}
-              <LabelList dataKey="name" position="outside" fill="hsl(var(--foreground))" stroke="none" className="fill-foreground text-xs" />
             </Pie>
             <Tooltip
               contentStyle={{
@@ -37,6 +36,7 @@ export function DonutChartCard({ title, data }: { title: string; data: { name: s
               }}
               formatter={(value: number) => `${value.toFixed(1)}%`}
             />
+            <Legend />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>

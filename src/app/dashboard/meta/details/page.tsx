@@ -2,13 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "../components/date-range-picker";
-import { Download, Filter, GaugeCircle } from "lucide-react";
+import { Download, Filter } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, LabelList } from "recharts";
 import { detailedMetrics, weeklyPerformance } from "../data";
+import { GaugeCircle } from "lucide-react";
 
 
 const ConversionRateCard = () => (
@@ -20,8 +21,8 @@ const ConversionRateCard = () => (
         <CardContent>
             <div className="text-xs text-red-400">-7.39% vs período anterior</div>
             <div className="relative h-20 mt-4 flex items-center justify-center">
-                 <GaugeCircle strokeWidth={2} className="w-24 h-24 text-green-400" style={{ transform: 'rotate(-90deg)', filter: "drop-shadow(0 0 5px currentColor)" }}>
-                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="currentColor" strokeWidth="4" strokeDasharray="251.2" strokeDashoffset={(251.2 * (1 - 0.76)) / 2} />
+                 <GaugeCircle strokeWidth={2} className="w-24 h-24 text-green-400 -rotate-90" style={{ filter: "drop-shadow(0 0 5px currentColor)" }}>
+                    <circle cx="50%" cy="50%" r="40%" fill="transparent" stroke="currentColor" strokeWidth="4" strokeDasharray="251.2" strokeDashoffset={(251.2 * (1 - 0.76))} />
                  </GaugeCircle>
                  <span className="absolute text-lg font-bold">{`76%`}</span>
             </div>
@@ -43,11 +44,11 @@ const CheckoutConversionCard = () => (
 )
 
 const PerformanceChart = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue h-full">
       <CardHeader>
         <CardTitle className="font-headline text-accent">Compras vs ROAS</CardTitle>
       </CardHeader>
-      <CardContent className="pt-6">
+      <CardContent className="pt-6 h-[calc(100%-4rem)]">
         <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={weeklyPerformance} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
                 <defs>
