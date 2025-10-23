@@ -201,7 +201,7 @@ const FluidFunnelChart = () => {
         const points = data.map((d, i) => {
             const stageValue = d.value > 0 ? d.value : 0;
             const proportion = maxValue > 0 ? stageValue / maxValue : 0;
-            const y = (proportion * (height / 2) * 0.9) + (height * 0.05);
+            const y = (proportion * (height / 2) * 0.9) + (height * 0.05); // Use 90% of half-height for curve, 5% margin
             return {
                 x: (i / (data.length - 1)) * width,
                 y0: height / 2 - y,
@@ -211,6 +211,7 @@ const FluidFunnelChart = () => {
       
         let path = `M ${points[0].x},${points[0].y0}`;
       
+        // Top curve
         for (let i = 0; i < points.length - 1; i++) {
           const start = points[i];
           const end = points[i+1];
@@ -221,8 +222,10 @@ const FluidFunnelChart = () => {
           path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${end.y0}`;
         }
       
+        // Line down to the bottom right
         path += ` L ${points[points.length - 1].x},${points[points.length - 1].y1}`;
       
+        // Bottom curve (reversed)
         for (let i = points.length - 1; i > 0; i--) {
           const start = points[i];
           const end = points[i - 1];
@@ -232,7 +235,7 @@ const FluidFunnelChart = () => {
           const cp2y = end.y1;
           path += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${end.y1}`;
         }
-        path += " Z";
+        path += " Z"; // Close the path
       
         return path;
       };
@@ -258,6 +261,7 @@ const FluidFunnelChart = () => {
         <CardContent className="h-[250px] p-0">
           <ResponsiveContainer width="100%" height="100%">
             <div className="relative w-full h-full p-6 flex flex-col">
+              {/* Stage Labels */}
               <div className="flex justify-around items-start">
                 {data.map((item, index) => (
                   <div key={index} className="flex-1 text-center">
@@ -266,6 +270,7 @@ const FluidFunnelChart = () => {
                 ))}
               </div>
   
+              {/* Fluid SVG and Percentages */}
               <div className="relative flex-1 w-full flex items-center justify-center">
                 <svg width="100%" height="100%" viewBox="0 0 800 150" preserveAspectRatio="none" className="absolute top-0 left-0 drop-shadow-[0_0_10px_#00F7FF66]">
                    <defs>
@@ -278,17 +283,19 @@ const FluidFunnelChart = () => {
                   <path d={getPathD(data, 800, 150)} fill="url(#funnelGradient)" />
                 </svg>
   
+                {/* Percentages overlay */}
                 <div className="w-full h-full flex justify-around items-center">
                    {data.map((item, index) => (
                     <div key={index} className="z-10 flex-1 text-center">
                       <p className="text-white font-semibold text-lg md:text-xl font-headline">
-                        {((item.value / data[0].value) * 100).toFixed(1)}%
+                        {index === 0 ? '100.0%' : ((item.value / data[index-1].value) * 100).toFixed(1)}%
                       </p>
                     </div>
                   ))}
                 </div>
               </div>
   
+              {/* Values */}
               <div className="flex justify-around items-end">
                 {data.map((item, index) => (
                    <div key={index} className="flex-1 text-center">
@@ -297,6 +304,7 @@ const FluidFunnelChart = () => {
                 ))}
               </div>
   
+              {/* Vertical separators */}
               <div className="absolute top-1/2 left-0 w-full h-px" style={{ transform: 'translateY(-50%)' }}>
                 <div className="flex justify-around h-full">
                   {data.slice(0, -1).map((_, index) => (
@@ -740,7 +748,3 @@ export default function MetaAdsPage() {
     </div>
   );
 }
-
-    
-
-    
