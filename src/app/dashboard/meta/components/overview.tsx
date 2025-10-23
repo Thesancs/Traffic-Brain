@@ -93,10 +93,10 @@ export default function Overview() {
                     ))}
                     </Pie>
                     <Tooltip
-                    contentStyle={{
-                        backgroundColor: 'hsl(var(--background))',
-                        borderColor: 'hsl(var(--border))',
-                    }}
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--background))",
+                        borderColor: "hsl(var(--border))",
+                      }}
                     />
                 </PieChart>
                 </ResponsiveContainer>
