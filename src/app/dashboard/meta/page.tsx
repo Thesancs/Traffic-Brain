@@ -30,14 +30,14 @@ export default function MetaAdsPage() {
     if (loading) {
       return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
                 <div>
                 <h1 className="text-3xl font-bold font-headline text-accent">Dashboard Meta Ads</h1>
                 <p className="text-muted-foreground">Análise de performance das suas campanhas.</p>
                 </div>
             </div>
             <Tabs defaultValue="overview">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <TabsList>
                   <TabsTrigger value="overview">Visão Geral</TabsTrigger>
                   <TabsTrigger value="details">Detalhamento</TabsTrigger>
@@ -61,7 +61,7 @@ export default function MetaAdsPage() {
 
   return (
     <div className="text-foreground">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline text-accent">Dashboard Meta Ads</h1>
           <p className="text-muted-foreground">Análise de performance das suas campanhas.</p>
@@ -69,10 +69,10 @@ export default function MetaAdsPage() {
       </div>
 
       <Tabs defaultValue="overview">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="details">Detalhamento</TabsTrigger>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="overview" className="flex-1">Visão Geral</TabsTrigger>
+            <TabsTrigger value="details" className="flex-1">Detalhamento</TabsTrigger>
           </TabsList>
           <DateRangePicker />
         </div>

@@ -33,7 +33,7 @@ const FunnelStage = ({
   else path = clipPath.middle;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center flex-shrink-0">
       <div
         className={cn(
           "text-background font-bold text-xs flex items-center justify-center px-4 h-8",
@@ -67,13 +67,13 @@ export function VideoRetentionFunnel() {
 
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <Clapperboard className="w-6 h-6 text-accent" />
           <CardTitle className="font-headline text-accent">Funil de Vídeo</CardTitle>
         </div>
         <Select value={activeCreative} onValueChange={(value) => setActiveCreative(value as VideoCreativeType)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Selecione um criativo" />
           </SelectTrigger>
           <SelectContent>
@@ -84,7 +84,7 @@ export function VideoRetentionFunnel() {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="flex items-start justify-center p-4 gap-2">
+        <div className="flex items-start justify-center p-4 gap-2 overflow-x-auto">
           {creativeData.map((item, index) => (
             <FunnelStage
               key={item.stage}

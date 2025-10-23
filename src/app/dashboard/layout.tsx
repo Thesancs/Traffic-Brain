@@ -16,13 +16,6 @@ const TikTokIcon = () => (
   </svg>
 );
 
-const navLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="size-4" /> },
-  { href: "/dashboard/meta", label: "Meta Ads", icon: <Facebook className="size-4" /> },
-  { href: "/dashboard/tiktok", label: "Tiktok Ads", icon: <TikTokIcon /> },
-  { href: "/dashboard/integrations", label: "Integrações", icon: <Plug className="size-4" /> },
-];
-
 function NavLinks() {
   const pathname = usePathname();
 
@@ -91,31 +84,33 @@ function MobileNav() {
       </SheetTrigger>
       <SheetContent side="left">
         <nav className="grid gap-6 text-lg font-medium">
-          <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
+          <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold mb-4">
              <div className="p-2 rounded-lg text-accent" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
                 <BrainCircuit className="size-6" />
              </div>
-            <span className="sr-only">Traffic Brain</span>
+             <span className="text-xl font-bold text-accent font-headline" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
+              Traffic Brain
+            </span>
           </Link>
-          <Link href="/dashboard" className={`flex items-center gap-4 transition-colors hover:text-accent ${pathname === '/dashboard' ? 'text-accent' : 'text-muted-foreground'}`}>
+          <Link href="/dashboard" className={`flex items-center gap-4 px-2.5 transition-colors hover:text-accent ${pathname === '/dashboard' ? 'text-accent' : 'text-muted-foreground'}`}>
             <LayoutDashboard className="size-5" />
             Dashboard
           </Link>
-          <Link href="/dashboard/meta" className={`flex items-center gap-4 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/meta') ? 'text-accent' : 'text-muted-foreground'}`}>
+          <Link href="/dashboard/meta" className={`flex items-center gap-4 px-2.5 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/meta') ? 'text-accent' : 'text-muted-foreground'}`}>
             <Facebook className="size-5" />
             Meta Ads
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className={`flex w-full items-center gap-4 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/google') ? 'text-accent' : 'text-muted-foreground'}`}
+                className={`flex w-full items-center gap-4 px-2.5 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/google') ? 'text-accent' : 'text-muted-foreground'}`}
               >
                 <Chrome className="size-5" />
-                Google
+                <span>Google</span>
                 <ChevronDown className="size-4 ml-auto" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-full">
+            <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuItem asChild>
                 <Link href="/dashboard/google">Google Ads</Link>
               </DropdownMenuItem>
@@ -124,13 +119,13 @@ function MobileNav() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link href="/dashboard/tiktok" className={`flex items-center gap-4 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/tiktok') ? 'text-accent' : 'text-muted-foreground'}`}>
+          <Link href="/dashboard/tiktok" className={`flex items-center gap-4 px-2.5 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/tiktok') ? 'text-accent' : 'text-muted-foreground'}`}>
             <div className="w-5 h-5 flex items-center justify-center">
               <TikTokIcon />
             </div>
             Tiktok Ads
           </Link>
-          <Link href="/dashboard/integrations" className={`flex items-center gap-4 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/integrations') ? 'text-accent' : 'text-muted-foreground'}`}>
+          <Link href="/dashboard/integrations" className={`flex items-center gap-4 px-2.5 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/integrations') ? 'text-accent' : 'text-muted-foreground'}`}>
             <Plug className="size-5" />
             Integrações
           </Link>
@@ -148,7 +143,10 @@ export default function DashboardLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-50 flex items-center justify-between h-16 px-4 border-b shrink-0 bg-background/80 backdrop-blur-sm md:px-8">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 md:hidden">
+           <MobileNav />
+        </div>
+        <div className="hidden items-center gap-3 md:flex">
           <Link href="/dashboard" className="flex items-center gap-3">
             <div className="p-2 rounded-lg text-accent" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
               <BrainCircuit className="size-6" />
@@ -171,7 +169,9 @@ export default function DashboardLayout({
             <AvatarImage src="https://picsum.photos/seed/123/40/40" alt="User" data-ai-hint="person avatar" />
             <AvatarFallback>TB</AvatarFallback>
           </Avatar>
-          <MobileNav />
+           <div className="md:hidden">
+             <MobileNav />
+           </div>
         </div>
       </header>
       <main className="relative flex-1 p-4 md:p-8">

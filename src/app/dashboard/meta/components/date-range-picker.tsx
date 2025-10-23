@@ -68,7 +68,7 @@ export function DateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-full sm:w-[300px] justify-start text-left font-normal",
               !date && "text-muted-foreground"
             )}
           >
@@ -87,8 +87,8 @@ export function DateRangePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 flex" align="end">
-          <div className="p-2 border-r">
+        <PopoverContent className="w-auto p-0 flex flex-col sm:flex-row" align="end">
+          <div className="p-2 border-b sm:border-r sm:border-b-0">
             <Select onValueChange={handlePresetChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Períodos" />

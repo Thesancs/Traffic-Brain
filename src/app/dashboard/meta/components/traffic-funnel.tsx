@@ -33,9 +33,9 @@ const FunnelStage = ({
           clipPath: 'polygon(10% 0, 90% 0, 100% 100%, 0% 100%)',
         }}
       ></div>
-      <div className="relative z-10 text-center">
-        <p className="text-xs font-normal text-accent">{stage}</p>
-        <p className="text-xl font-bold font-headline">{formatNumber(value)}</p>
+      <div className="relative z-10 text-center px-2">
+        <p className="text-xs font-normal text-accent truncate">{stage}</p>
+        <p className="text-lg md:text-xl font-bold font-headline">{formatNumber(value)}</p>
       </div>
     </div>
   );
@@ -44,7 +44,7 @@ const FunnelStage = ({
 const FunnelMetric = ({ label, value, change, isCurrency = true }: { label: string; value: number; change?: number, isCurrency?: boolean }) => (
     <div className="text-right">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-xl font-bold">{isCurrency ? formatCurrency(value) : formatDecimal(value)}</p>
+        <p className="text-lg md:text-xl font-bold">{isCurrency ? formatCurrency(value) : formatDecimal(value)}</p>
         {change && (
             <p className={cn("text-xs", change > 0 ? 'text-green-400' : 'text-red-400')}>
                 {change > 0 ? '▲' : '▼'} {change.toFixed(1)}%
@@ -68,10 +68,10 @@ export function TrafficFunnel() {
 
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <CardTitle className="font-headline text-accent">Funil Geral</CardTitle>
         <Select value={activeFunnel} onValueChange={(value) => setActiveFunnel(value as FunnelType)}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Selecione um funil" />
           </SelectTrigger>
           <SelectContent>
@@ -82,7 +82,7 @@ export function TrafficFunnel() {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[1fr_auto_1fr] gap-x-4 items-center">
+        <div className="grid grid-cols-[1fr_auto_1fr] gap-x-2 sm:gap-x-4 items-center">
            {/* Stages */}
            <div className="space-y-2">
             {funnelData.map((item, index) => (
