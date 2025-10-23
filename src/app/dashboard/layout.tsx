@@ -36,16 +36,18 @@ function NavLinks() {
       </Link>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Link
-            href="/dashboard/google"
+          <button
             className={`flex items-center gap-2 transition-colors hover:text-accent ${pathname.startsWith('/dashboard/google') ? 'text-accent' : 'text-muted-foreground'}`}
           >
             <Chrome className="size-4" />
-            Google Ads
+            Google
             <ChevronDown className="size-3" />
-          </Link>
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/google">Google Ads</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/dashboard/google/analytics">Analytics</Link>
           </DropdownMenuItem>
