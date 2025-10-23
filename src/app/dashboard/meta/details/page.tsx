@@ -58,22 +58,21 @@ export default function MetaAdsDetailsPage() {
                 </div>
             </div>
 
-            <div className="grid gap-6">
-                <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-                    <div className="lg:col-span-1 flex flex-col gap-6">
-                       <ConversionRateCard />
-                       <CheckoutConversionCard />
-                    </div>
-                    <div className="lg:col-span-4">
-                        <PerformanceChart />
-                    </div>
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <div className="lg:col-span-1 flex flex-col gap-6">
+                <ConversionRateCard />
+                <CheckoutConversionCard />
+              </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
-                   <DonutChartCard title="Gênero" data={detailedMetrics.genderDistribution} />
-                   <DonutChartCard title="Faixa Etária" data={detailedMetrics.ageDistribution} />
-                </div>
-            </div>
+              <div className="lg:col-span-2">
+                <PerformanceChart />
+              </div>
+              
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
+                <DonutChartCard title="Gênero" data={detailedMetrics.genderDistribution} />
+                <DonutChartCard title="Faixa Etária" data={detailedMetrics.ageDistribution} />
+              </div>
+          </div>
         </div>
     )
 }
