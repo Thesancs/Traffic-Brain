@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { format } from "date-fns"
+import { addDays, format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export function DateRangePicker({
   className,
@@ -22,6 +23,42 @@ export function DateRangePicker({
     from: new Date(2024, 0, 20),
     to: new Date(),
   })
+
+  const handlePresetChange = (value: string) => {
+    const now = new Date();
+    switch (value) {
+        case "today":
+            setDate({ from: now, to: now });
+            break;
+        case "yesterday":
+            setDate({ from: addDays(now, -1), to: addDays(now, -1) });
+            break;
+        case "last7":
+            setDate({ from: addDays(now, -6), to: now });
+            break;
+        case "last15":
+            setDate({ from: addDays(now, -14), to: now });
+            break;
+        case "last30":
+            setDate({ from: addDays(now, -29), to: now });
+            break;
+        case "last_quarter":
+            // This is a simplified version. A real implementation might need more complex logic.
+            setDate({ from: addDays(now, -90), to: now });
+            break;
+        case "last_semester":
+            setDate({ from: addDays(now, -180), to: now });
+            break;
+        case "last_year":
+            setDate({ from: addDays(now, -365), to: now });
+            break;
+        case "max":
+            setDate({ from: new Date(2024, 0, 1), to: now });
+            break;
+        default:
+            break;
+    }
+  }
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -50,7 +87,25 @@ export function DateRangePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="end">
+        <PopoverContent className="w-auto p-0 flex" align="end">
+          <div className="p-2 border-r">
+            <Select onValueChange={handlePresetChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Períodos" />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="today">Hoje</SelectItem>
+                <SelectItem value="yesterday">Ontem</SelectItem>
+                <SelectItem value="last7">Últimos 7 dias</SelectItem>
+                <SelectItem value="last15">Últimos 15 dias</SelectItem>
+                <SelectItem value="last30">Último mês</SelectItem>
+                <SelectItem value="last_quarter">Último trimestre</SelectItem>
+                <SelectItem value="last_semester">Último semestre</SelectItem>
+                <SelectItem value="last_year">Último ano</SelectItem>
+                <SelectItem value="max">Máximo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Calendar
             initialFocus
             mode="range"
