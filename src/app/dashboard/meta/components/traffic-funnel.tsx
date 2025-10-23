@@ -57,7 +57,8 @@ const FunnelMetric = ({ label, value, change, isCurrency = true }: { label: stri
 
 const ConversionRate = ({ value }: { value: number }) => (
     <div className="relative h-16 flex items-center justify-center">
-      <div className="absolute w-px h-full bg-border -z-10"></div>
+      <div className="absolute w-px h-full bg-border -z-10 md:hidden"></div>
+      <div className="absolute h-px w-full bg-border -z-10 hidden md:block"></div>
       <span className="bg-background px-2 text-sm text-accent border border-accent/50 rounded-full">{value.toFixed(2)}%</span>
     </div>
   );
@@ -82,19 +83,39 @@ export function TrafficFunnel() {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[1fr_auto_1fr] gap-x-2 sm:gap-x-4 items-center">
-           {/* Stages */}
-           <div className="space-y-2">
+        <div className="md:grid md:grid-cols-[1fr_auto_1fr] md:gap-x-4 items-center">
+           {/* Mobile Layout */}
+           <div className="md:hidden space-y-2">
+            {funnelData.map((item, index) => {
+              const nextItem = funnelData[index + 1];
+              const rate = item.value > 0 && nextItem ? (nextItem.value / item.value) * 100 : 0;
+              return (
+                <div key={item.stage} className="space-y-2">
+                  <div className="grid grid-cols-[1fr_auto] gap-4 items-center">
+                    <FunnelStage stage={item.stage} value={item.value} index={index} total={funnelData.length} />
+                    <FunnelMetric 
+                        label={item.costLabel}
+                        value={item.costValue}
+                        change={item.costChange}
+                        isCurrency={!['CPM', 'CTR'].includes(item.costLabel)}
+                    />
+                  </div>
+                  {nextItem && <ConversionRate value={rate} />}
+                </div>
+              );
+            })}
+           </div>
+           
+           {/* Desktop Layout */}
+           <div className="hidden md:space-y-2 md:block">
             {funnelData.map((item, index) => (
               <FunnelStage key={item.stage} stage={item.stage} value={item.value} index={index} total={funnelData.length} />
             ))}
           </div>
 
-          {/* Conversion Rates */}
-          <div className="space-y-2">
+          <div className="hidden md:space-y-2 md:block">
             {funnelData.slice(0, -1).map((item, index) => {
                  const nextItem = funnelData[index + 1];
-                 // Avoid division by zero if a stage has 0 value
                  if (!item.value || !nextItem.value) {
                     return <ConversionRate key={index} value={0} />;
                  }
@@ -103,9 +124,8 @@ export function TrafficFunnel() {
             })}
           </div>
 
-          {/* KPIs */}
-          <div className="space-y-4">
-             {funnelData.map((item, index) => (
+          <div className="hidden md:space-y-4 md:block">
+             {funnelData.map((item) => (
                 <FunnelMetric 
                     key={item.costLabel}
                     label={item.costLabel}

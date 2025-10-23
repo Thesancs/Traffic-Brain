@@ -9,13 +9,13 @@ export const overviewKpis = {
 };
 
 export const weeklyPerformance = [
-  { name: 'Seg', Gasto: 8000, Faturamento: 25000 },
-  { name: 'Ter', Gasto: 9500, Faturamento: 30000 },
-  { name: 'Qua', Gasto: 11000, Faturamento: 35000 },
-  { name: 'Qui', Gasto: 10000, Faturamento: 32000 },
-  { name: 'Sex', Gasto: 13000, Faturamento: 45000 },
-  { name: 'Sab', Gasto: 15000, Faturamento: 55000 },
-  { name: 'Dom', Gasto: 12000, Faturamento: 40000 },
+    { name: 'Seg', Gasto: 80000, Faturamento: 25000 },
+    { name: 'Ter', Gasto: 9500, Faturamento: 30000 },
+    { name: 'Qua', Gasto: 11000, Faturamento: 35000 },
+    { name: 'Qui', Gasto: 10000, Faturamento: 32000 },
+    { name: 'Sex', Gasto: 13000, Faturamento: 45000 },
+    { name: 'Sab', Gasto: 15000, Faturamento: 55000 },
+    { name: 'Dom', Gasto: 12000, Faturamento: 40000 },
 ];
 
 export type FunnelStageData = {
@@ -123,18 +123,6 @@ export const detailedMetrics = {
   ],
 };
 
-export type ConversionFunnelStage = {
-  stage: string;
-  value: number;
-};
-
-export const conversionFunnelData: ConversionFunnelStage[] = [
-  { stage: 'Cliques', value: 36000 },
-  { stage: 'Vis. Página', value: 25000 },
-  { stage: 'ICs', value: 2500 },
-  { stage: 'Vendas Inic.', value: 1200 },
-  { stage: 'Vendas Apr.', value: 1000 },
-];
 
 export const funnelDataSets = {
     'Infoproduto': infoproductFunnelData,

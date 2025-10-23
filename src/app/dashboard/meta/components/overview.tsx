@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { overviewKpis, weeklyPerformance, adSpendDistribution } from "../data";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import { TrafficFunnel } from "./traffic-funnel";
-import { FluidFunnelChart } from "./fluid-funnel-chart";
 import { CampaignSummaryTable } from "./campaign-summary-table";
 import { DashboardLoadingSkeleton } from "./dashboard-loading-skeleton";
 import { DashboardErrorState } from "./dashboard-error-state";
@@ -44,14 +43,13 @@ export default function Overview() {
         <DashboardCard title="Gastos" value={formatCurrency(overviewKpis.gastos)} icon={<DollarSign />} />
         <DashboardCard title="Campanhas Ativas" value={formatNumber(overviewKpis.campanhasAtivas)} icon={<Activity />} />
         <DashboardCard title="Impressões" value={formatNumber(overviewKpis.impressoes)} icon={<Eye />} />
-        <DashboardCard title="Receita Estimada" value={formatCurrency(overviewKpis.receitaEstimada)} icon={<TrendingUp />} />
+        <DashboardCard title="Faturamento" value={formatCurrency(overviewKpis.receitaEstimada)} icon={<TrendingUp />} />
         <DashboardCard title="Leads" value={formatNumber(overviewKpis.leads)} icon={<Users />} />
         <DashboardCard title="Checkouts" value={formatNumber(overviewKpis.checkouts)} icon={<ShoppingBag />} />
       </div>
 
       <div className="grid grid-cols-1 gap-8">
         <TrafficFunnel />
-        <FluidFunnelChart />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
