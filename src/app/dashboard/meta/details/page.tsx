@@ -2,15 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "../components/date-range-picker";
-import { Download, Filter } from "lucide-react";
+import { Download, Filter, GaugeCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { DonutChartCard } from "../components/donut-chart-card";
-import { detailedMetrics, weeklyPerformance } from "../data";
+import { detailedMetrics } from "../data";
 import { PerformanceChart } from "../components/performance-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { GaugeCircle } from "lucide-react";
+
 
 const ConversionRateCard = () => (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
@@ -20,8 +20,11 @@ const ConversionRateCard = () => (
         </CardHeader>
         <CardContent>
             <div className="text-xs text-red-400">-7.39% vs período anterior</div>
-            <div className="relative h-20 mt-4">
-                 <GaugeCircle value={76} className="w-full h-auto absolute top-0 left-0 text-green-400" strokeWidth={2} style={{ filter: "drop-shadow(0 0 5px currentColor)" }}/>
+            <div className="relative h-20 mt-4 flex items-center justify-center">
+                 <GaugeCircle strokeWidth={2} className="w-24 h-24 text-green-400" style={{ transform: 'rotate(-90deg)', filter: "drop-shadow(0 0 5px currentColor)" }}>
+                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="currentColor" strokeWidth="4" strokeDasharray="251.2" strokeDashoffset={(251.2 * (1 - 0.76)) / 2} />
+                 </GaugeCircle>
+                 <span className="absolute text-lg font-bold">{`76%`}</span>
             </div>
         </CardContent>
     </Card>
@@ -48,8 +51,8 @@ export default function MetaAdsDetailsPage() {
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                 <div>
-                <h1 className="text-2xl font-bold font-headline text-accent">Detalhamento Geral</h1>
-                <p className="text-muted-foreground">Meta Ads</p>
+                    <h1 className="text-2xl font-bold font-headline text-accent">Detalhamento Geral</h1>
+                    <p className="text-muted-foreground">Meta Ads</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                     <Button variant="outline" size={isMobile ? 'icon' : 'default'}><Filter className={cn(isMobile && "h-4 w-4")} /><span className="hidden md:inline">Filtros</span></Button>

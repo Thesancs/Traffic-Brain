@@ -10,7 +10,7 @@ export function PerformanceChart() {
       <CardHeader>
         <CardTitle className="font-headline text-accent">Compras vs ROAS</CardTitle>
       </CardHeader>
-      <CardContent className="h-[calc(100%-4rem)]">
+      <CardContent className="h-[calc(100%-4rem)] pt-6">
         <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={weeklyPerformance} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
                 <defs>
@@ -21,8 +21,8 @@ export function PerformanceChart() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
                 <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{fontSize: 12}} />
-                <YAxis yAxisId="left" stroke="hsl(var(--chart-2))" tickLine={false} axisLine={false} tick={{fontSize: 12}} />
-                <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} tick={{fontSize: 12}} />
+                <YAxis yAxisId="left" stroke="hsl(var(--chart-2))" tickLine={false} axisLine={false} tick={{fontSize: 12}} name="Compras" />
+                <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} tick={{fontSize: 12}} name="ROAS" />
                 <Tooltip
                     contentStyle={{
                         backgroundColor: 'hsl(var(--background))',
