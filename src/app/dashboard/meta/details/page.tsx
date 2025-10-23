@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Button } from "@/components/ui/button";
@@ -12,23 +13,63 @@ import { detailedMetrics, weeklyPerformance } from "../data";
 import { GaugeCircle } from "lucide-react";
 
 
-const ConversionRateCard = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
-        <CardHeader className="pb-2">
-            <CardDescription>Taxa de Conversão</CardDescription>
-            <CardTitle className="text-4xl font-headline">7.6%</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="text-xs text-red-400">-7.39% vs período anterior</div>
-            <div className="relative h-20 mt-4 flex items-center justify-center">
-                 <GaugeCircle strokeWidth={2} className="w-24 h-24 text-green-400 -rotate-90" style={{ filter: "drop-shadow(0 0 5px currentColor)" }}>
-                    <circle cx="50%" cy="50%" r="40%" fill="transparent" stroke="currentColor" strokeWidth="4" strokeDasharray="251.2" strokeDashoffset={(251.2 * (1 - 0.76))} />
-                 </GaugeCircle>
-                 <span className="absolute text-lg font-bold">{`76%`}</span>
-            </div>
+const ConversionRateCard = () => {
+    const percentage = 7.6;
+    const radius = 50;
+    const strokeWidth = 10;
+    const circumference = 2 * Math.PI * radius;
+    // We only want a semi-circle, so we take half the circumference
+    const semiCircumference = circumference / 2;
+    // We need to account for the stroke width in the offset
+    const strokeDashoffset = semiCircumference - (semiCircumference * percentage) / 100;
+  
+    return (
+      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+        <CardContent className="p-4 relative flex flex-col items-center justify-center">
+          <svg width="150" height="95" viewBox="0 0 120 75" className="transform -rotate-90">
+            <defs>
+                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(var(--chart-2))" />
+                <stop offset="100%" stopColor="hsl(var(--primary))" />
+                </linearGradient>
+            </defs>
+            {/* Background semi-circle */}
+            <circle
+              cx="60"
+              cy="60"
+              r={radius}
+              fill="transparent"
+              stroke="hsl(var(--muted-foreground)/0.2)"
+              strokeWidth={strokeWidth}
+              strokeDasharray={semiCircumference}
+              strokeDashoffset={0}
+              transform="rotate(-180 60 60)"
+              strokeLinecap="round"
+            />
+            {/* Foreground semi-circle */}
+            <circle
+              cx="60"
+              cy="60"
+              r={radius}
+              fill="transparent"
+              stroke="url(#gaugeGradient)"
+              strokeWidth={strokeWidth}
+              strokeDasharray={semiCircumference}
+              strokeDashoffset={strokeDashoffset}
+              transform="rotate(-180 60 60)"
+              strokeLinecap="round"
+              style={{ transition: "stroke-dashoffset 0.5s ease-in-out" }}
+            />
+          </svg>
+          <div className="absolute flex flex-col items-center justify-center">
+            <div className="text-xs text-muted-foreground">Taxa de Conversão</div>
+            <div className="text-3xl font-bold font-headline">7.6%</div>
+            <div className="text-xs text-red-400">-7.39%</div>
+          </div>
         </CardContent>
-    </Card>
-)
+      </Card>
+    );
+  };
 
 const CheckoutConversionCard = () => (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
@@ -151,3 +192,4 @@ export default function MetaAdsDetailsPage() {
         </div>
     )
 }
+
