@@ -13,6 +13,7 @@ import { detailedMetrics, weeklyPerformance } from "../data";
 
 const ConversionRateCard = () => {
     const percentage = 7.6;
+    const change = -7.39;
     const radius = 50;
     const strokeWidth = 10;
     const semiCircumference = Math.PI * radius;
@@ -51,7 +52,9 @@ const ConversionRateCard = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center mt-[-10px]">
             <div className="text-xs text-muted-foreground">Taxa de Conversão</div>
             <div className="text-3xl font-bold font-headline">7.6%</div>
-            <div className="text-xs text-red-400">-7.39%</div>
+            <div className={cn("text-xs", change >= 0 ? "text-green-400" : "text-red-400")}>
+              {change.toFixed(2)}%
+            </div>
           </div>
         </CardContent>
       </Card>
