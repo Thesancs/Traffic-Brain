@@ -18,7 +18,8 @@ export default function GoogleAdsPage() {
       const timer = setTimeout(() => {
         try {
           // Data fetch simulation
-        } catch (e: any)          setError(e.message || "Ocorreu um erro desconhecido.");
+        } catch (e: any) {
+          setError(e.message || "Ocorreu um erro desconhecido.");
         } finally {
           setLoading(false);
         }
