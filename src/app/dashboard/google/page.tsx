@@ -7,6 +7,7 @@ import Details from "./components/details";
 import { DashboardLoadingSkeleton } from "@/app/dashboard/meta/components/dashboard-loading-skeleton";
 import { DashboardErrorState } from "@/app/dashboard/meta/components/dashboard-error-state";
 import { DateRangePicker } from "@/app/dashboard/meta/components/date-range-picker";
+import Link from "next/link";
 
 
 export default function GoogleAdsPage() {
@@ -17,8 +18,7 @@ export default function GoogleAdsPage() {
       const timer = setTimeout(() => {
         try {
           // Data fetch simulation
-        } catch (e: any) {
-          setError(e.message || "Ocorreu um erro desconhecido.");
+        } catch (e: any)          setError(e.message || "Ocorreu um erro desconhecido.");
         } finally {
           setLoading(false);
         }
@@ -39,16 +39,13 @@ export default function GoogleAdsPage() {
             <Tabs defaultValue="overview">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
                 <TabsList>
-                  <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-                  <TabsTrigger value="details">Detalhamento</TabsTrigger>
+                  <TabsTrigger value="overview" asChild><Link href="/dashboard/google">Visão Geral</Link></TabsTrigger>
+                  <TabsTrigger value="details" asChild><Link href="/dashboard/google/details">Detalhamento</Link></TabsTrigger>
                 </TabsList>
                 <DateRangePicker />
               </div>
               <TabsContent value="overview">
                   <DashboardLoadingSkeleton />
-              </TabsContent>
-              <TabsContent value="details">
-                    <DashboardLoadingSkeleton />
               </TabsContent>
             </Tabs>
         </div>
@@ -71,16 +68,13 @@ export default function GoogleAdsPage() {
       <Tabs defaultValue="overview">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
           <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="overview" className="flex-1">Visão Geral</TabsTrigger>
-            <TabsTrigger value="details" className="flex-1">Detalhamento</TabsTrigger>
+            <TabsTrigger value="overview" asChild><Link href="/dashboard/google">Visão Geral</Link></TabsTrigger>
+            <TabsTrigger value="details" asChild><Link href="/dashboard/google/details">Detalhamento</Link></TabsTrigger>
           </TabsList>
           <DateRangePicker />
         </div>
         <TabsContent value="overview">
           <Overview />
-        </TabsContent>
-        <TabsContent value="details">
-          <Details />
         </TabsContent>
       </Tabs>
     </div>
