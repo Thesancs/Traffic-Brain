@@ -148,3 +148,31 @@ export const funnelDataSets = {
 }
 
 export type FunnelType = keyof typeof funnelDataSets;
+
+export type VideoRetentionData = {
+    stage: string;
+    value: number;
+};
+  
+export const videoRetentionDataSets: Record<string, VideoRetentionData[]> = {
+    'Criativo 1': [
+      { stage: 'Vv 25%', value: 8.57 },
+      { stage: 'Vv 50%', value: 4.96 },
+      { stage: 'Vv 75%', value: 3.22 },
+      { stage: 'Vv 100%', value: 1.44 },
+    ],
+    'Criativo 2': [
+      { stage: 'Vv 25%', value: 12.34 },
+      { stage: 'Vv 50%', value: 8.12 },
+      { stage: 'Vv 75%', value: 5.67 },
+      { stage: 'Vv 100%', value: 2.01 },
+    ],
+    'Criativo 3': [
+      { stage: 'Vv 25%', value: 5.55 },
+      { stage: 'Vv 50%', value: 2.11 },
+      { stage: 'Vv 75%', value: 1.05 },
+      { stage: 'Vv 100%', value: 0.45 },
+    ],
+};
+
+export type VideoCreativeType = keyof typeof videoRetentionDataSets;

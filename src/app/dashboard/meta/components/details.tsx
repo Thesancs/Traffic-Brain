@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Clapperboard } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Bar, BarChart as RechartsBarChart } from "recharts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { detailedMetrics } from "../data";
 import { FilterDropdown } from "./filter-dropdown";
 import { PieChartCard } from "./pie-chart-card";
 import { ComparisonTable } from "./comparison-table";
+import { VideoRetentionFunnel } from "./video-retention-funnel";
 
 export default function Details() {
   return (
@@ -23,6 +24,8 @@ export default function Details() {
           Período
         </Button>
       </div>
+      
+      <VideoRetentionFunnel />
 
       <div className="grid lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-3 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
