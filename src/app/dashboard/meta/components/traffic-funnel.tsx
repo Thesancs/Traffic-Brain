@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { funnelData } from "../data";
+import { funnelDataSets, FunnelStageData, FunnelType } from "../data";
 import { formatCurrency, formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const FunnelStage = ({
   stage,
@@ -41,13 +44,13 @@ const FunnelStage = ({
 const FunnelMetric = ({ label, value, change, isCurrency = true }: { label: string; value: number; change?: number, isCurrency?: boolean }) => (
     <div className="text-right">
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-xl font-bold">{isCurrency ? formatCurrency(value) : value}</p>
+        <p className="text-xl font-bold">{isCurrency ? formatCurrency(value) : formatDecimal(value)}</p>
         {change && (
             <p className={cn("text-xs", change > 0 ? 'text-green-400' : 'text-red-400')}>
                 {change > 0 ? '▲' : '▼'} {change.toFixed(1)}%
             </p>
         )}
-         {value === 0 && <p className="text-xs text-muted-foreground">N/A</p>}
+         {value === 0 && !change && <p className="text-xs text-muted-foreground">N/A</p>}
     </div>
 );
 
@@ -60,10 +63,32 @@ const ConversionRate = ({ value }: { value: number }) => (
   );
 
 export function TrafficFunnel() {
+  const [activeFunnel, setActiveFunnel] = useState<FunnelType>('Infoproduto');
+  const funnelData = funnelDataSets[activeFunnel];
+
+  const formatDecimal = (value: number) => {
+    // CPM doesn't need to be currency
+    if (value > 10) return formatNumber(value);
+    return new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  }
+
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-headline text-accent">Funil Geral</CardTitle>
+        <Select value={activeFunnel} onValueChange={(value) => setActiveFunnel(value as FunnelType)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Selecione um funil" />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.keys(funnelDataSets).map(key => (
+              <SelectItem key={key} value={key}>{key}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-[1fr_auto_1fr] gap-x-4 items-center">
@@ -78,6 +103,10 @@ export function TrafficFunnel() {
           <div className="space-y-2">
             {funnelData.slice(0, -1).map((item, index) => {
                  const nextItem = funnelData[index + 1];
+                 // Avoid division by zero if a stage has 0 value
+                 if (!item.value || !nextItem.value) {
+                    return <ConversionRate key={index} value={0} />;
+                 }
                  const rate = item.value > 0 ? (nextItem.value / item.value) * 100 : 0;
                  return <ConversionRate key={index} value={rate} />;
             })}
@@ -91,7 +120,7 @@ export function TrafficFunnel() {
                     label={item.costLabel}
                     value={item.costValue}
                     change={item.costChange}
-                    isCurrency={item.costLabel !== 'CPM'}
+                    isCurrency={!['CPM', 'CTR'].includes(item.costLabel)}
                 />
             ))}
           </div>

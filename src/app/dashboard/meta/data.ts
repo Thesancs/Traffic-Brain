@@ -26,15 +26,54 @@ export type FunnelStageData = {
   costChange?: number;
 };
 
-export const funnelData: FunnelStageData[] = [
+export const infoproductFunnelData: FunnelStageData[] = [
     { stage: 'Impressões', value: 38079, costLabel: 'CPM', costValue: 40.61, costChange: 182.2 },
-    { stage: 'Cliques no Link', value: 1032, costLabel: 'Custo/Cliques no Link', costValue: 1.50, costChange: 157.0 },
+    { stage: 'Cliques', value: 1032, costLabel: 'CPC', costValue: 1.50, costChange: 157.0 },
     { stage: 'Page View', value: 918, costLabel: 'Custo/Page View', costValue: 1.68, costChange: 94.8 },
-    { stage: 'Iniciou Checkout', value: 116, costLabel: 'Custo/Iniciou Checkout', costValue: 13.33 },
-    { stage: 'Compras', value: 44, costLabel: 'Custo/Compras', costValue: 35.14 },
-    { stage: 'Vendas', value: 0, costLabel: 'Custo/Venda', costValue: 0},
-    { stage: 'Leads', value: 0, costLabel: 'Custo/Lead', costValue: 0 },
+    { stage: 'Iniciou Checkout (IC)', value: 116, costLabel: 'Custo/IC', costValue: 13.33 },
+    { stage: 'Compras', value: 44, costLabel: 'Custo/Compra', costValue: 35.14 },
 ];
+
+export const messagesFunnelData: FunnelStageData[] = [
+  { stage: 'Impressões', value: 52000, costLabel: 'CPM', costValue: 35.50, costChange: 150.0 },
+  { stage: 'Cliques no Link', value: 1200, costLabel: 'CPC', costValue: 1.54, costChange: 130.0 },
+  { stage: 'Mensagens', value: 350, costLabel: 'Custo/Mensagem', costValue: 5.28 },
+  { stage: 'Qualificados', value: 80, costLabel: 'Custo/Qualificado', costValue: 23.12 },
+  { stage: 'Compras', value: 25, costLabel: 'Custo/Compra', costValue: 74.00 },
+];
+
+export const ecommerceFunnelData: FunnelStageData[] = [
+  { stage: 'Impressões', value: 150000, costLabel: 'CPM', costValue: 22.00, costChange: 80.5 },
+  { stage: 'Cliques', value: 4500, costLabel: 'CPC', costValue: 0.73, costChange: 65.0 },
+  { stage: 'Page View', value: 4000, costLabel: 'Custo/Page View', costValue: 0.82 },
+  { stage: 'Adicionou ao Carrinho', value: 450, costLabel: 'Custo/Add to Cart', costValue: 7.33 },
+  { stage: 'Compras', value: 150, costLabel: 'Custo/Compra', costValue: 22.00 },
+];
+
+export const engagementFunnelData: FunnelStageData[] = [
+  { stage: 'Impressões', value: 250000, costLabel: 'CPM', costValue: 5.00, costChange: 25.0 },
+  { stage: 'Alcance', value: 180000, costLabel: 'Custo/1k Pessoas', costValue: 6.94 },
+  { stage: 'Engajamentos', value: 9000, costLabel: 'Custo/Engajamento', costValue: 0.14 },
+  { stage: 'Visitas ao Perfil', value: 1200, costLabel: 'Custo/Visita', costValue: 1.04 },
+  { stage: 'Novos Seguidores', value: 350, costLabel: 'Custo/Seguidor', costValue: 3.57 },
+];
+
+export const leadsFunnelData: FunnelStageData[] = [
+  { stage: 'Impressões', value: 80000, costLabel: 'CPM', costValue: 18.75, costChange: 95.0 },
+  { stage: 'Cliques', value: 2000, costLabel: 'CPC', costValue: 0.75, costChange: 75.0 },
+  { stage: 'Landing Page Views', value: 1800, costLabel: 'Custo/LP View', costValue: 0.83 },
+  { stage: 'Cadastros (Leads)', value: 500, costLabel: 'Custo/Lead (CPL)', costValue: 3.00 },
+  { stage: 'Leads Qualificados', value: 100, costLabel: 'Custo/Lead Qualificado', costValue: 15.00 },
+];
+
+export const deliveryFunnelData: FunnelStageData[] = [
+  { stage: 'Impressões', value: 45000, costLabel: 'CPM', costValue: 15.00, costChange: 110.0 },
+  { stage: 'Cliques', value: 1500, costLabel: 'CPC', costValue: 0.45, costChange: 88.0 },
+  { stage: 'Visualizações do Menu', value: 1200, costLabel: 'Custo/Menu View', costValue: 0.56 },
+  { stage: 'Pedidos', value: 200, costLabel: 'Custo/Pedido', costValue: 3.37 },
+  { stage: 'Pedidos Faturados', value: 180, costLabel: 'Custo/Pedido Faturado', costValue: 3.75 },
+];
+
 
 export const adSpendDistribution = [
   { name: 'Anúncio A', value: 400, fill: 'hsl(var(--chart-1))' },
@@ -98,3 +137,14 @@ export const conversionFunnelData: ConversionFunnelStage[] = [
   { stage: 'Vendas Inic.', value: 120 },
   { stage: 'Vendas Apr.', value: 40 },
 ];
+
+export const funnelDataSets = {
+    'Infoproduto': infoproductFunnelData,
+    'Mensagens': messagesFunnelData,
+    'E-commerce': ecommerceFunnelData,
+    'Engajamento': engagementFunnelData,
+    'Cadastros': leadsFunnelData,
+    'Delivery': deliveryFunnelData,
+}
+
+export type FunnelType = keyof typeof funnelDataSets;
