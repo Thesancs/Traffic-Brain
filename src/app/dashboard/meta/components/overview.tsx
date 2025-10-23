@@ -103,16 +103,24 @@ export default function Overview() {
                     nameKey="name" 
                     cx="50%" 
                     cy="50%" 
-                    innerRadius={60}
-                    outerRadius={80} 
+                    innerRadius={70}
+                    outerRadius={90} 
                     paddingAngle={5}
+                    cornerRadius={8}
                     label
+                    stroke="hsl(var(--background))"
+                    strokeWidth={2}
                   >
                     {adSpendDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                        <Cell key={`cell-${index}`} fill={entry.fill} style={{filter: `drop-shadow(0 0 5px ${entry.fill})`}} />
                     ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        borderColor: 'hsl(var(--border))',
+                      }}
+                    />
                 </PieChart>
                 </ResponsiveContainer>
             </CardContent>
