@@ -13,11 +13,13 @@ const FunnelStage = ({
   value,
   isFirst,
   isLast,
+  color,
 }: {
   stage: string;
   value: number;
   isFirst: boolean;
   isLast: boolean;
+  color: string;
 }) => {
   const clipPath = {
     first: "polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%)",
@@ -34,14 +36,19 @@ const FunnelStage = ({
     <div className="flex flex-col items-center">
       <div
         className={cn(
-          "bg-yellow-400 text-black font-bold text-xs flex items-center justify-center px-4 h-8",
+          "text-background font-bold text-xs flex items-center justify-center px-4 h-8",
           !isFirst && "-ml-4"
         )}
-        style={{ clipPath: path, width: "100px" }}
+        style={{ 
+            clipPath: path, 
+            width: "120px", 
+            backgroundColor: color,
+            filter: `drop-shadow(0 0 4px ${color})`
+        }}
       >
         {stage}
       </div>
-      <span className="mt-2 text-sm text-foreground">{value.toFixed(2)}%</span>
+      <span className="mt-2 text-sm font-semibold font-headline text-foreground">{value.toFixed(2)}%</span>
     </div>
   );
 };
@@ -50,6 +57,13 @@ export function VideoRetentionFunnel() {
   const [activeCreative, setActiveCreative] = useState<VideoCreativeType>('Criativo 1');
   const creativeData = videoRetentionDataSets[activeCreative];
   const creativeOptions = Object.keys(videoRetentionDataSets) as VideoCreativeType[];
+
+  const colors = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+  ];
 
   return (
     <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
@@ -78,6 +92,7 @@ export function VideoRetentionFunnel() {
               value={item.value}
               isFirst={index === 0}
               isLast={index === creativeData.length - 1}
+              color={colors[index % colors.length]}
             />
           ))}
         </div>

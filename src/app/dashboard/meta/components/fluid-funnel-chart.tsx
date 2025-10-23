@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Info } from "lucide-react";
@@ -100,7 +101,7 @@ export const FluidFunnelChart = () => {
                       <linearGradient id="funnelGradient" x1="0%" y1="50%" x2="100%" y2="50%">
                         <stop offset="0%" stopColor="hsl(var(--chart-1))" />
                         <stop offset="50%" stopColor="hsl(var(--chart-2))" />
-                        <stop offset="100%" stopColor="#FF00AA" />
+                        <stop offset="100%" stopColor="hsl(var(--chart-5))" />
                       </linearGradient>
                     </defs>
                   <path d={getPathD(data, 800, 150)} fill="url(#funnelGradient)" />
