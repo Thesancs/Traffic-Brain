@@ -60,7 +60,7 @@ export default function DashboardLayout({
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000); // Simulate loading time
+    }, 1500); // Simulate loading time
 
     return () => clearTimeout(timer);
   }, [pathname]);
@@ -87,7 +87,7 @@ export default function DashboardLayout({
         <main className="relative flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
            <RetroGrid />
            {loading && <PlatformLoading />}
-           <div className={cn("relative z-10", loading && "opacity-0")}>{children}</div>
+           <div className={cn("relative z-10 transition-opacity duration-500", loading && "opacity-0")}>{children}</div>
         </main>
       </div>
     </div>
