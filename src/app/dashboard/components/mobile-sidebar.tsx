@@ -53,7 +53,7 @@ export function MobileSidebar() {
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
                 </Link>
-                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
+                <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
                 <AccordionItem value="item-1" className="border-none">
                     <AccordionTrigger className="py-2 hover:no-underline [&[data-state=open]>svg]:text-primary">
                         <div className={cn("flex items-center gap-3 rounded-lg text-muted-foreground transition-all", isActive('/dashboard/meta') && "text-primary")}>
@@ -68,32 +68,27 @@ export function MobileSidebar() {
                         </nav>
                     </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="item-2" className="border-none">
-                    <AccordionTrigger className="py-2 hover:no-underline [&[data-state=open]>svg]:text-primary">
-                        <div className={cn("flex items-center gap-3 rounded-lg text-muted-foreground transition-all", isActive('/dashboard/google') && "text-primary")}>
-                            <Chrome className="h-4 w-4" />
-                            Google Ads
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pl-12">
-                        <nav className="grid gap-4">
-                            <Link href="/dashboard/google" className={cn("text-muted-foreground hover:text-primary", pathname === '/dashboard/google' && "text-primary")}>Visão Geral</Link>
-                            <Link href="/dashboard/google/analytics" className={cn("text-muted-foreground hover:text-primary", pathname === '/dashboard/google/analytics' && "text-primary")}>Analytics</Link>
-                        </nav>
-                    </AccordionContent>
-                </AccordionItem>
-                 <AccordionItem value="item-3" className="border-none">
-                    <AccordionTrigger className="py-2 hover:no-underline [&[data-state=open]>svg]:text-primary">
-                         <div className={cn("flex items-center gap-3 rounded-lg text-muted-foreground transition-all", isActive('/dashboard/tiktok') && "text-primary")}>
-                            <TikTokIcon />
-                            TikTok Ads
-                        </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pl-8">
-                        {/* Add sub-links for TikTok if needed */}
-                    </AccordionContent>
-                </AccordionItem>
               </Accordion>
+              <Link
+                href="/dashboard/google"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                  isActive('/dashboard/google') && "text-primary bg-muted"
+                )}
+              >
+                <Chrome className="h-4 w-4" />
+                Google Ads
+              </Link>
+               <Link
+                href="/dashboard/tiktok"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                  isActive('/dashboard/tiktok') && "text-primary bg-muted"
+                )}
+              >
+                <TikTokIcon />
+                TikTok Ads
+              </Link>
                <Link
                 href="/dashboard/integrations"
                 className={cn(
@@ -109,3 +104,4 @@ export function MobileSidebar() {
         </Sheet>
     )
 }
+    
