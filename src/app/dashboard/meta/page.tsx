@@ -1,138 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DollarSign, Eye, TrendingUp, Users, ShoppingBag, Target, ArrowDown, ArrowRight, BarChart, Download, Filter, Search, Clapperboard, ChevronDown } from "lucide-react";
-import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { ChevronDown, Download, Filter, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "./components/date-range-picker";
-import { overviewKpis, weeklyPerformance, adSpendDistribution, campaignSummary, detailedMetrics } from "./data";
+import { weeklyPerformance, adSpendDistribution } from "./data";
 import { formatCurrency, formatNumber, formatDecimal } from "@/lib/formatters";
 import { DashboardLoadingSkeleton } from "./components/dashboard-loading-skeleton";
 import { DashboardErrorState } from "./components/dashboard-error-state";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { FunnelChart } from "./components/funnel-chart";
-
-// KPI Card Mini Chart
-const KpiChart = ({ data, dataKey, color }: { data: any[], dataKey: string, color: string }) => (
-  <div className="h-10 w-full">
-    <ResponsiveContainer>
-      <AreaChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
-        <defs>
-          <linearGradient id={`color-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
-            <stop offset="95%" stopColor={color} stopOpacity={0}/>
-          </linearGradient>
-        </defs>
-        <Area type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} fill={`url(#color-${dataKey})`} />
-      </AreaChart>
-    </ResponsiveContainer>
-  </div>
-);
-
-// Enhanced KPI Card
-const KpiCard = ({ title, value, change, chartData, chartDataKey, chartColor }: { title: string, value: string, change: string, chartData: any[], chartDataKey: string, chartColor: string }) => {
-  const isPositive = change.startsWith('+');
-  return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-      <CardHeader className="pb-2">
-        <CardDescription>{title}</CardDescription>
-        <CardTitle className="text-2xl font-headline">{value}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-xs text-muted-foreground">{change}</div>
-        <KpiChart data={chartData} dataKey={chartDataKey} color={chartColor} />
-      </CardContent>
-    </Card>
-  );
-};
-
-// Donut Chart
-const DonutChartCard = ({ title, data }: { title: string, data: { name: string, value: number, fill: string }[] }) => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30">
-        <CardHeader>
-            <CardTitle className="font-headline text-accent">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                    <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} cornerRadius={8}>
-                        {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}/>
-                </PieChart>
-            </ResponsiveContainer>
-        </CardContent>
-    </Card>
-);
-
-// Line Chart Card
-const PerformanceChart = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 col-span-1 md:col-span-2 lg:col-span-2">
-        <CardHeader>
-            <CardTitle className="font-headline text-accent">Faturamento vs Compras</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[250px] pr-8">
-            <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={weeklyPerformance}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
-                    <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="left" stroke="hsl(var(--chart-3))" tickLine={false} axisLine={false}/>
-                    <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-2))" tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))' }}/>
-                    <Line yAxisId="left" type="monotone" dataKey="Faturamento" stroke="hsl(var(--chart-3))" strokeWidth={2} dot={false} style={{filter: 'drop-shadow(0 0 4px hsl(var(--chart-3)))'}} />
-                    <Line yAxisId="right" type="monotone" dataKey="Compras" stroke="hsl(var(--chart-2))" strokeWidth={2} dot={false} style={{filter: 'drop-shadow(0 0 4px hsl(var(--chart-2)))'}} />
-                </LineChart>
-            </ResponsiveContainer>
-        </CardContent>
-    </Card>
-);
-
-// Campaign Table
-const CampaignTable = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 col-span-1 md:col-span-4 lg:col-span-4">
-        <Tabs defaultValue="campaigns">
-            <CardHeader>
-                <TabsList>
-                    <TabsTrigger value="campaigns">Campanhas</TabsTrigger>
-                    <TabsTrigger value="adsets">Conjuntos</TabsTrigger>
-                    <TabsTrigger value="ads">Anúncios</TabsTrigger>
-                </TabsList>
-            </CardHeader>
-            <CardContent>
-                <TabsContent value="campaigns">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Campanha</TableHead>
-                                <TableHead>Investimento</TableHead>
-                                <TableHead>Faturamento</TableHead>
-                                <TableHead>ROAS</TableHead>
-                                <TableHead>CPA</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {campaignSummary.map(c => (
-                                <TableRow key={c.id}>
-                                    <TableCell>{c.name}</TableCell>
-                                    <TableCell>{formatCurrency(c.Custo)}</TableCell>
-                                    <TableCell>{formatCurrency(c.Custo * 4.5)}</TableCell>
-                                    <TableCell>{formatDecimal(4.5)}</TableCell>
-                                    <TableCell>{formatCurrency(c.Custo / 150)}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TabsContent>
-                <TabsContent value="adsets"><p className="text-center text-muted-foreground p-8">Dados de Conjuntos de Anúncios.</p></TabsContent>
-                <TabsContent value="ads"><p className="text-center text-muted-foreground p-8">Dados de Anúncios.</p></TabsContent>
-            </CardContent>
-        </Tabs>
-    </Card>
-);
+import { ObjectiveFunnelChart } from "./components/objective-funnel-chart";
+import { KpiCard } from "./components/kpi-card";
+import { CampaignTable } from "./components/campaign-table";
+import { PerformanceChart } from "./components/performance-chart";
+import { DonutChartCard } from "./components/donut-chart-card";
+import { VideoRetentionFunnel } from "./components/video-retention-funnel";
+import { ComparisonTable } from "./components/comparison-table";
 
 export default function MetaAdsPage() {
     const [loading, setLoading] = useState(true);
@@ -189,15 +73,18 @@ export default function MetaAdsPage() {
         <KpiCard title="Compras" value={formatNumber(400)} change="-23.8%" chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
         <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
         
-        {/* Funnel */}
-        <FunnelChart />
+        <ObjectiveFunnelChart />
 
-        {/* Charts */}
         <PerformanceChart />
+
         <DonutChartCard title="Melhores Anúncios (Conversões)" data={adSpendDistribution} />
 
-        {/* Table */}
         <CampaignTable />
+        
+        <VideoRetentionFunnel />
+
+        <ComparisonTable />
+        
       </div>
     </div>
   );
