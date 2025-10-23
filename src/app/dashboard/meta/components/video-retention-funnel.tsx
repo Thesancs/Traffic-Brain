@@ -41,7 +41,7 @@ const FunnelStage = ({
         )}
         style={{ 
             clipPath: path, 
-            width: "120px", 
+            width: "140px", 
             backgroundColor: color,
             filter: `drop-shadow(0 0 4px ${color})`
         }}
@@ -84,7 +84,7 @@ export function VideoRetentionFunnel() {
         </Select>
       </CardHeader>
       <CardContent>
-        <div className="flex items-start justify-center p-4 gap-0">
+        <div className="flex items-start justify-center p-4 gap-2">
           {creativeData.map((item, index) => (
             <FunnelStage
               key={item.stage}
