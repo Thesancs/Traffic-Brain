@@ -10,13 +10,13 @@ import { DashboardLoadingSkeleton } from "./components/dashboard-loading-skeleto
 import { DashboardErrorState } from "./components/dashboard-error-state";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ObjectiveFunnelChart } from "./components/objective-funnel-chart";
-import { KpiCard } from "./components/kpi-card";
-import { CampaignTable } from "./components/campaign-table";
 import { PerformanceChart } from "./components/performance-chart";
+import { CampaignTable } from "./components/campaign-table";
+import { KpiCard } from "./components/kpi-card";
 import { DonutChartCard } from "./components/donut-chart-card";
 import { VideoRetentionFunnel } from "./components/video-retention-funnel";
 import { ComparisonTable } from "./components/comparison-table";
+import { TrafficFunnel } from "./components/traffic-funnel";
 
 export default function MetaAdsPage() {
     const [loading, setLoading] = useState(true);
@@ -75,7 +75,7 @@ export default function MetaAdsPage() {
             <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
         </div>
         
-        <ObjectiveFunnelChart />
+        <TrafficFunnel />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2">
