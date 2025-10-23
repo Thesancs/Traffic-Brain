@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, Download, Filter, BarChart, ShoppingCart, Target, CreditCard } from "lucide-react";
+import { ChevronDown, Download, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "./components/date-range-picker";
 import { weeklyPerformance, adSpendDistribution, infoproductFunnelData } from "./data";
@@ -11,12 +11,11 @@ import { DashboardErrorState } from "./components/dashboard-error-state";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PerformanceChart } from "./components/performance-chart";
-import { CampaignTable } from "./components/campaign-table";
-import { KpiCard } from "./components/kpi-card";
 import { DonutChartCard } from "./components/donut-chart-card";
-import { VideoRetentionFunnel } from "./components/video-retention-funnel";
-import { ComparisonTable } from "./components/comparison-table";
+import { KpiCard } from "./components/kpi-card";
 import { TrafficFunnel } from "./components/traffic-funnel";
+import { CampaignTable } from "./components/campaign-table";
+import { VideoRetentionFunnel } from "./components/video-retention-funnel";
 
 export default function MetaAdsPage() {
     const [loading, setLoading] = useState(true);
@@ -56,12 +55,11 @@ export default function MetaAdsPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
         <div>
-          <h1 className="text-2xl font-bold font-headline text-accent">Relatório Meta Ads</h1>
+          <h1 className="text-2xl font-bold font-headline text-accent">Visão Geral</h1>
           <p className="text-muted-foreground">Nome da Empresa</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size={isMobile ? 'icon' : 'default'}><Download className={cn(isMobile && "h-4 w-4")} /><span className="hidden md:inline">Exportar</span></Button>
-            <Button variant="outline" size={isMobile ? 'icon' : 'default'}><BarChart className={cn(isMobile && "h-4 w-4")} /><span className="hidden md:inline">Relatórios</span></Button>
             <Button variant="outline" size={isMobile ? 'icon' : 'default'}>
                 <Filter className="mr-0 md:mr-2 h-4 w-4"/>
                 <span className="hidden md:inline">Campanhas</span> 
@@ -72,7 +70,7 @@ export default function MetaAdsPage() {
       </div>
 
       {/* Main Content - Single Column Layout */}
-      
+      <div className="flex flex-col gap-8">
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <KpiCard title="Investimento" value={formatCurrency(totalSpend)} change="-28.2%" chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" />
@@ -81,9 +79,9 @@ export default function MetaAdsPage() {
             <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <KpiCard title="Checkouts Iniciados" value={formatNumber(initiatedCheckouts)} change="-15%" chartData={weeklyPerformance} chartDataKey="Checkouts" chartColor="hsl(var(--chart-5))" icon={<ShoppingCart />}/>
-            <KpiCard title="Custo por Checkout" value={formatCurrency(costPerCheckout)} change="+12%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-1))" icon={<CreditCard />}/>
-            <KpiCard title="CPA (Custo por Compra)" value={formatCurrency(cpa)} change="+5%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-2))" icon={<Target />}/>
+            <KpiCard title="Checkouts Iniciados" value={formatNumber(initiatedCheckouts)} change="-15%" chartData={weeklyPerformance} chartDataKey="Checkouts" chartColor="hsl(var(--chart-5))"/>
+            <KpiCard title="Custo por Checkout" value={formatCurrency(costPerCheckout)} change="+12%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-1))"/>
+            <KpiCard title="CPA (Custo por Compra)" value={formatCurrency(cpa)} change="+5%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-2))" />
         </div>
         
         <TrafficFunnel />
@@ -98,10 +96,8 @@ export default function MetaAdsPage() {
         <CampaignTable />
         
         <VideoRetentionFunnel />
-
-        <ComparisonTable />
         
-      
+      </div>
     </div>
   );
 }

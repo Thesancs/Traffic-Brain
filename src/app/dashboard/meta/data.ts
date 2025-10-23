@@ -132,6 +132,17 @@ export const detailedMetrics = {
     { name: 'Remarketing', cost: 10000, result: 92000 },
     { name: 'Branding', cost: 5000, result: 10000 },
   ],
+  genderDistribution: [
+    { name: 'female', value: 86.3, fill: 'hsl(var(--chart-1))' },
+    { name: 'male', value: 13.1, fill: 'hsl(var(--chart-2))' },
+    { name: 'unknown', value: 0.6, fill: 'hsl(var(--chart-3))' },
+  ],
+  ageDistribution: [
+    { name: '25-34', value: 53.4, fill: 'hsl(var(--chart-1))' },
+    { name: '18-24', value: 23.9, fill: 'hsl(var(--chart-2))' },
+    { name: '35-44', value: 18.1, fill: 'hsl(var(--chart-3))' },
+    { name: '45-54', value: 4.6, fill: 'hsl(var(--chart-4))' },
+  ]
 };
 
 
