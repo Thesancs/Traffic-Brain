@@ -5,11 +5,10 @@ import { DateRangePicker } from "../components/date-range-picker";
 import { Download, Filter, GaugeCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { DonutChartCard } from "../components/donut-chart-card";
-import { detailedMetrics } from "../data";
-import { PerformanceChart } from "../components/performance-chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell, LabelList } from "recharts";
+import { detailedMetrics, weeklyPerformance } from "../data";
 
 
 const ConversionRateCard = () => (
@@ -43,6 +42,78 @@ const CheckoutConversionCard = () => (
     </Card>
 )
 
+const PerformanceChart = () => (
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+      <CardHeader>
+        <CardTitle className="font-headline text-accent">Compras vs ROAS</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={weeklyPerformance} margin={{ top: 5, right: 20, left: 0, bottom: 0 }}>
+                <defs>
+                    <linearGradient id="colorCompras" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
+                    </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
+                <XAxis dataKey="name" tickLine={false} axisLine={false} tick={{fontSize: 12}} />
+                <YAxis yAxisId="left" stroke="hsl(var(--chart-2))" tickLine={false} axisLine={false} tick={{fontSize: 12}} name="Compras" />
+                <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--chart-1))" tickLine={false} axisLine={false} tick={{fontSize: 12}} name="ROAS" />
+                <Tooltip
+                    contentStyle={{
+                        backgroundColor: 'hsl(var(--background))',
+                        borderColor: 'hsl(var(--border))',
+                    }}
+                />
+                <Legend />
+                <Area yAxisId="left" type="monotone" dataKey="Compras" stroke="hsl(var(--chart-2))" fill="url(#colorCompras)" strokeWidth={2} name="Compras" />
+                <Line yAxisId="right" type="monotone" dataKey="ROAS" stroke="hsl(var(--chart-1))" strokeWidth={2} dot={false} name="ROAS" style={{filter: 'drop-shadow(0 0 4px hsl(var(--chart-1)))'}} />
+            </AreaChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+);
+
+const DonutChartCard = ({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) => (
+    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+      <CardHeader>
+        <CardTitle className="font-headline text-accent">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie 
+              data={data} 
+              dataKey="value" 
+              nameKey="name" 
+              cx="50%" 
+              cy="50%" 
+              innerRadius={70} 
+              outerRadius={90}
+              paddingAngle={5}
+              cornerRadius={8}
+              stroke="hsl(var(--background))"
+              strokeWidth={2}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} style={{filter: `drop-shadow(0 0 5px ${entry.fill})`}} />
+              ))}
+              <LabelList dataKey="name" position="outside" fill="hsl(var(--foreground))" stroke="none" className="fill-foreground text-xs" />
+            </Pie>
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                borderColor: 'hsl(var(--border))',
+              }}
+              formatter={(value: number) => `${value.toFixed(1)}%`}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </CardContent>
+    </Card>
+  );
+
 
 export default function MetaAdsDetailsPage() {
     const isMobile = useIsMobile();
@@ -67,7 +138,7 @@ export default function MetaAdsDetailsPage() {
                 <CheckoutConversionCard />
               </div>
 
-              <div className="lg:col-span-2">
+              <div className="lg:col-span-2 h-[500px]">
                 <PerformanceChart />
               </div>
               
