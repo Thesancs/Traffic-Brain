@@ -11,19 +11,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { conversionFunnelData } from "../data";
+import { infoproductFunnelData, FunnelStageData } from "../data";
 import { formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 
 export const FluidFunnelChart = () => {
-    const data = conversionFunnelData;
-    const maxValue = Math.max(...data.map(d => d.value));
-  
-    const getPathD = (data: { stage: string; value: number }[], width: number, height: number): string => {
+    const data: FunnelStageData[] = infoproductFunnelData;
+    const maxValue = Math.max(...data.map((d) => d.value));
+
+    const getPathD = (data: FunnelStageData[], width: number, height: number): string => {
         if (data.length === 0) return "";
-      
-        const points = data.map((d, i) => {
-            const stageValue = d.value > 0 ? d.value : 0;
+
+        const points = data.map((stage, i) => {
+            const stageValue = stage.value > 0 ? stage.value : 0;
             const proportion = maxValue > 0 ? stageValue / maxValue : 0;
             const y = (proportion * (height / 2) * 0.9) + (height * 0.05); // Use 90% of half-height for curve, 5% margin
             return {
@@ -66,7 +66,7 @@ export const FluidFunnelChart = () => {
   
   
     return (
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+      <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="font-headline text-accent">Funil de Conversão (Meta Ads)</CardTitle>
           <TooltipProvider>
@@ -87,8 +87,8 @@ export const FluidFunnelChart = () => {
             <div className="relative w-full h-full p-6 flex flex-col">
               {/* Stage Labels */}
               <div className="flex justify-around items-start">
-                {data.map((item, index) => (
-                  <div key={index} className="flex-1 text-center">
+                {data.map((item: FunnelStageData, index: number) => (
+                  <div key={`${item.stage}-${index}`} className="flex-1 text-center">
                     <h3 className="text-sm md:text-base text-blue-200">{item.stage}</h3>
                   </div>
                 ))}
@@ -109,8 +109,8 @@ export const FluidFunnelChart = () => {
   
                 {/* Percentages overlay */}
                 <div className="w-full h-full flex justify-around items-center">
-                   {data.map((item, index) => (
-                    <div key={index} className="z-10 flex-1 text-center">
+                   {data.map((item: FunnelStageData, index: number) => (
+                    <div key={`${item.stage}-${index}-percentage`} className="z-10 flex-1 text-center">
                       <p className="text-white font-semibold text-lg md:text-xl font-headline">
                         {index === 0 ? '100.0%' : ((item.value / data[index-1].value) * 100).toFixed(1)}%
                       </p>
@@ -121,8 +121,8 @@ export const FluidFunnelChart = () => {
   
               {/* Values */}
               <div className="flex justify-around items-end">
-                {data.map((item, index) => (
-                   <div key={index} className="flex-1 text-center">
+                {data.map((item: FunnelStageData, index: number) => (
+                   <div key={`${item.stage}-${index}-value`} className="flex-1 text-center">
                     <p className="text-sm md:text-base text-blue-200">{formatNumber(item.value)}</p>
                    </div>
                 ))}
@@ -131,8 +131,8 @@ export const FluidFunnelChart = () => {
               {/* Vertical separators */}
               <div className="absolute top-1/2 left-0 w-full h-px" style={{ transform: 'translateY(-50%)' }}>
                 <div className="flex justify-around h-full">
-                  {data.slice(0, -1).map((_, index) => (
-                    <div key={index} className={cn("w-px bg-blue-300/20 h-full", index === 0 && 'ml-[20%]')}></div>
+                  {data.slice(0, -1).map((_, index: number) => (
+                    <div key={`separator-${index}`} className={cn("w-px bg-blue-300/20 h-full", index === 0 && 'ml-[20%]')}></div>
                   ))}
                 </div>
               </div>

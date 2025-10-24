@@ -15,20 +15,19 @@ export function DashboardCard({ title, value, icon, subtext, highlight }: Dashbo
   return (
     <Card
       className={cn(
-        "bg-white/10 backdrop-blur-xl border border-white/20 shadow-lg rounded-2xl transition-all duration-300 ease-in-out",
-        "hover:shadow-neon-blue",
-        highlight && "border-accent/30 shadow-neon-blue"
+        "glass-card group flex flex-col gap-2 border-white/10 transition-all duration-500",
+        highlight ? "border-accent/50 shadow-glass-hover" : "shadow-glass"
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium text-muted-foreground transition-colors hover:text-accent">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground/70">
           {title}
         </CardTitle>
-        {icon && <span className="text-accent">{icon}</span>}
+        {icon && <span className="text-accent drop-shadow-[0_0_8px_rgba(0,247,255,0.45)]">{icon}</span>}
       </CardHeader>
-      <CardContent>
-        <div className={cn("text-2xl font-bold font-headline", highlight && "text-accent")}>{value}</div>
-        {subtext && <p className="text-xs text-muted-foreground">{subtext}</p>}
+      <CardContent className="space-y-2">
+        <div className={cn("text-3xl font-headline font-semibold text-foreground", highlight && "text-accent neon-text")}>{value}</div>
+        {subtext && <p className="text-xs text-muted-foreground/80">{subtext}</p>}
       </CardContent>
     </Card>
   );

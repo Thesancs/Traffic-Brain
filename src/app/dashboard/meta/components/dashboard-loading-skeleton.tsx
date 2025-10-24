@@ -7,7 +7,7 @@ export const DashboardLoadingSkeleton = () => (
     <div className="space-y-8">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
         {[...Array(6)].map((_, i) => (
-          <Card key={i} className="bg-card/60 backdrop-blur-sm border-border/30">
+        <Card key={i} className="glass-card border-white/10">
             <CardHeader>
               <Skeleton className="h-4 w-2/3" />
             </CardHeader>
@@ -18,7 +18,7 @@ export const DashboardLoadingSkeleton = () => (
         ))}
       </div>
       <div className="grid grid-cols-1 gap-8">
-        <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="glass-card border-white/10">
           <CardHeader>
             <Skeleton className="h-6 w-1/2" />
           </CardHeader>
@@ -30,7 +30,7 @@ export const DashboardLoadingSkeleton = () => (
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="glass-card border-white/10">
           <CardHeader>
             <Skeleton className="h-6 w-1/3" />
           </CardHeader>
@@ -40,7 +40,7 @@ export const DashboardLoadingSkeleton = () => (
         </Card>
       </div>
       <div className="grid lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-2 bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="lg:col-span-2 glass-card border-white/10">
           <CardHeader>
             <Skeleton className="h-6 w-1/3" />
           </CardHeader>
@@ -48,7 +48,7 @@ export const DashboardLoadingSkeleton = () => (
             <Skeleton className="h-[300px] w-full" />
           </CardContent>
         </Card>
-        <Card className="bg-card/60 backdrop-blur-sm border-border/30">
+        <Card className="glass-card border-white/10">
           <CardHeader>
             <Skeleton className="h-6 w-1/2" />
           </CardHeader>

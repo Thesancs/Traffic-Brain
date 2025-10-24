@@ -66,7 +66,7 @@ export function VideoRetentionFunnel() {
   ];
 
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
           <Clapperboard className="w-6 h-6 text-accent" />

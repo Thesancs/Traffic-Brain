@@ -14,7 +14,7 @@ import { formatCurrency, formatNumber } from "@/lib/formatters";
 
 export function CampaignTable() {
   return (
-    <Card className="lg:col-span-4 bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="lg:col-span-4 glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader>
             <CardTitle className="font-headline text-accent">Resumo das Campanhas</CardTitle>
         </CardHeader>

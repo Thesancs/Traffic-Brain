@@ -20,7 +20,7 @@ const ConversionRateCard = () => {
     const strokeDashoffset = semiCircumference - (semiCircumference * percentage) / 100;
   
     return (
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+      <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardContent className="p-4 relative flex flex-col items-center justify-center">
           <svg width="150" height="95" viewBox="0 0 120 75">
             <defs>
@@ -62,7 +62,7 @@ const ConversionRateCard = () => {
   };
 
 const CheckoutConversionCard = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader className="pb-2">
             <CardDescription>Conversão de Checkout</CardDescription>
             <CardTitle className="text-4xl font-headline">25.62%</CardTitle>
@@ -75,7 +75,7 @@ const CheckoutConversionCard = () => (
 )
 
 const PerformanceChart = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
       <CardHeader>
         <CardTitle className="font-headline text-accent">Compras vs ROAS</CardTitle>
       </CardHeader>
@@ -108,7 +108,7 @@ const PerformanceChart = () => (
 );
 
 const DonutChartCard = ({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
       <CardHeader>
         <CardTitle className="font-headline text-accent">{title}</CardTitle>
       </CardHeader>

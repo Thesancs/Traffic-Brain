@@ -6,7 +6,7 @@ import { weeklyPerformance } from "../data";
 
 export function PerformanceChart() {
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue h-[450px]">
+    <Card className="glass-card h-[450px] border-white/10 hover:shadow-glass-hover">
       <CardHeader>
         <CardTitle className="font-headline text-accent">Compras vs Gasto</CardTitle>
       </CardHeader>

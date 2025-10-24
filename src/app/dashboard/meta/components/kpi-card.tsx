@@ -30,17 +30,17 @@ export function KpiCard({ title, value, change, chartData, chartDataKey, chartCo
   const isPositive = change.startsWith('+');
 
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue w-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <div className={cn("flex items-center text-xs font-bold", isPositive ? "text-green-400" : "text-red-400")}>
+    <Card className="glass-card w-full border-white/10 hover:shadow-glass-hover">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground/70">{title}</CardTitle>
+        <div className={cn("flex items-center text-xs font-bold", isPositive ? "text-emerald-400" : "text-rose-400")}>
             {isPositive ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
             {change}
         </div>
       </CardHeader>
       <CardContent className="flex items-end justify-between gap-4">
-        <div className="text-3xl font-bold font-headline">{value}</div>
-        <div className="w-24 h-12 -mb-4 -mr-4">
+        <div className="text-3xl font-bold font-headline text-foreground">{value}</div>
+        <div className="w-24 h-12 -mb-4 -mr-2">
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <defs>
