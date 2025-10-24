@@ -3,7 +3,7 @@ import {
   aggregateKpis,
   ensureValidPlatforms,
   getDistributionForSelection,
-  platformDefinitions,
+  getPlatformDefinitions,
   type AggregatedKpis,
   type AggregatedTotals,
   type DateRange,
@@ -62,7 +62,7 @@ export class IntegrationService {
   }
 
   private async fetchLiveMetrics(platform: PlatformKey, managerId: string, range?: DateRange): Promise<LiveMetric | null> {
-    const platformDef = platformDefinitions[platform];
+    const platformDef = getPlatformDefinitions()[platform];
     const manager = platformDef.businessManagers.find((item) => item.id === managerId);
     if (!manager) return null;
 

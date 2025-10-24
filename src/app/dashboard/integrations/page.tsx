@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -10,10 +10,13 @@ import {
   ShieldCheck,
   Sparkles,
   Workflow,
+  Loader2,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { GoogleAdsIcon, MetaIcon, TikTokIcon } from '@/components/icons/platforms';
+import type { PlatformKey } from '@/app/dashboard/data';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type IntegrationStatus = 'connected' | 'available' | 'beta';
 
@@ -22,7 +25,10 @@ type IntegrationMetric = {
   value: string;
 };
 
+type IntegrationKey = PlatformKey | 'linkedin';
+
 type IntegrationPlatform = {
+  key?: IntegrationKey;
   name: string;
   description: string;
   icon: ReactNode;
@@ -32,8 +38,14 @@ type IntegrationPlatform = {
   owner?: string;
 };
 
+type ComputedPlatform = IntegrationPlatform & {
+  statusOverride?: IntegrationStatus;
+  actionLabelOverride?: string;
+};
+
 const integrationPlatforms: IntegrationPlatform[] = [
   {
+    key: 'meta',
     name: 'Meta Ads (Facebook)',
     description:
       'Sincronize campanhas, conjuntos de anúncios e eventos do Facebook e Instagram sem atrito.',
@@ -47,6 +59,7 @@ const integrationPlatforms: IntegrationPlatform[] = [
     ],
   },
   {
+    key: 'google',
     name: 'Google Ads & Analytics',
     description:
       'Unifique mídia paga e comportamento onsite em um único fluxo com atribuição avançada.',
@@ -60,6 +73,7 @@ const integrationPlatforms: IntegrationPlatform[] = [
     ],
   },
   {
+    key: 'linkedin',
     name: 'LinkedIn Ads',
     description:
       'Consolide leads B2B, formulários e métricas de pipeline do LinkedIn Campaign Manager.',
@@ -72,6 +86,7 @@ const integrationPlatforms: IntegrationPlatform[] = [
     ],
   },
   {
+    key: 'tiktok',
     name: 'TikTok Ads',
     description: 'Analise criativos, tendências de engajamento e atribuição em um só lugar.',
     icon: <TikTokIcon className="h-6 w-9" />,
@@ -160,13 +175,117 @@ const onboardingSteps = [
 ];
 
 export default function IntegrationsPage() {
-  const connectedPlatforms = integrationPlatforms.filter(
-    (platform) => platform.status === 'connected',
+  const [connections, setConnections] = useState<Record<PlatformKey, number>>({
+    meta: 0,
+    google: 0,
+    tiktok: 0,
+  });
+  const [loadingMetaConnect, setLoadingMetaConnect] = useState(false);
+  const [connectError, setConnectError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadConnections = async () => {
+      try {
+        const response = await fetch('/api/integrations/connections', {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error('Não foi possível carregar conexões.');
+        }
+        const payload = await response.json() as {
+          connections: Record<PlatformKey, Array<{ accountId: string }>>;
+        };
+        setConnections({
+          meta: payload.connections.meta.length,
+          google: payload.connections.google.length,
+          tiktok: payload.connections.tiktok.length,
+        });
+      } catch (error: any) {
+        if (error?.name === 'AbortError') return;
+        console.error('Erro ao buscar conexões de integrações', error);
+      }
+    };
+
+    loadConnections();
+
+    return () => controller.abort();
+  }, []);
+
+  const computedPlatforms = useMemo<ComputedPlatform[]>(
+    () =>
+      integrationPlatforms.map((platform) => {
+        if (platform.key === 'meta') {
+          const isConnected = connections.meta > 0;
+          return {
+            ...platform,
+            statusOverride: isConnected ? 'connected' : 'available',
+            metrics: isConnected
+              ? [
+                  { label: 'BM conectados', value: `${connections.meta}` },
+                  { label: 'Sincronização', value: 'Ativa' },
+                ]
+              : platform.metrics,
+            lastSync: isConnected ? 'há instantes' : platform.lastSync,
+            actionLabelOverride: isConnected ? 'Sincronizar agora' : 'Conectar via Facebook',
+          };
+        }
+
+        if (platform.key && platform.key in connections) {
+          const typedKey = platform.key as PlatformKey;
+          const total = connections[typedKey];
+          if (total > 0) {
+            return {
+              ...platform,
+              metrics: [
+                { label: 'BM conectados', value: `${total}` },
+                ...platform.metrics.slice(1),
+              ],
+            };
+          }
+        }
+
+        return { ...platform };
+      }),
+    [connections],
   );
-  const connectionProgress = Math.round(
-    (connectedPlatforms.length / integrationPlatforms.length) * 100,
+
+  const connectedPlatforms = computedPlatforms.filter(
+    (platform) => (platform.statusOverride ?? platform.status) === 'connected',
   );
+
+  const connectionProgress = computedPlatforms.length
+    ? Math.round((connectedPlatforms.length / computedPlatforms.length) * 100)
+    : 0;
   const globalLastSync = connectedPlatforms[0]?.lastSync ?? 'há instantes';
+
+  const handleMetaConnect = async () => {
+    if (typeof window === 'undefined') return;
+    setConnectError(null);
+    setLoadingMetaConnect(true);
+    let redirected = false;
+
+    try {
+      const redirectUri = `${window.location.origin}/oauth/meta/callback`;
+      const params = new URLSearchParams({ redirectUri, state: 'meta-connect' });
+      params.append('scope', 'ads_read');
+      params.append('scope', 'ads_management');
+      const response = await fetch(`/api/oauth/meta/authorize?${params.toString()}`);
+      const data = await response.json();
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.message ?? 'Falha ao iniciar a conexão com o Meta.');
+      }
+      redirected = true;
+      window.location.href = data.url as string;
+    } catch (error: any) {
+      console.error('Erro ao iniciar integração Meta', error);
+      setConnectError(error?.message ?? 'Não foi possível iniciar a conexão com o Meta.');
+    } finally {
+      if (!redirected) {
+        setLoadingMetaConnect(false);
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -222,7 +341,7 @@ export default function IntegrationsPage() {
                   {connectedPlatforms.length}
                 </span>
                 <span className="text-xs text-muted-foreground/60">
-                  de {integrationPlatforms.length}
+                  de {computedPlatforms.length}
                 </span>
               </div>
               <Progress
@@ -312,94 +431,104 @@ export default function IntegrationsPage() {
         </div>
       </section>
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {integrationPlatforms.map((platform) => {
-          const content = statusContent[platform.status];
+      {connectError && (
+        <Alert className="glass-panel border-destructive/40 bg-destructive/15 text-destructive-foreground">
+          <AlertDescription>{connectError}</AlertDescription>
+        </Alert>
+      )}
+
+      <section className="grid gap-6 lg:grid-cols-2">
+        {computedPlatforms.map((platform) => {
+          const statusKey = platform.statusOverride ?? platform.status;
+          const status = statusContent[statusKey];
+          const actionLabel = platform.actionLabelOverride ?? status.actionLabel;
+          const isMeta = platform.key === 'meta';
 
           return (
             <Card
               key={platform.name}
-              className="group relative overflow-hidden border-white/10 bg-white/5 shadow-glass transition-colors hover:border-accent/50 hover:shadow-glass-hover"
+              className="glass-card group overflow-hidden border-white/10 bg-white/5 shadow-glass transition-all duration-500 hover:shadow-glass-hover"
             >
-              <div className="pointer-events-none absolute -right-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl transition-opacity duration-500 group-hover:opacity-80" />
-              <CardHeader className="relative flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-accent">
+              <CardHeader className="relative space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 shadow-neon-blue">
                       {platform.icon}
-                    </div>
+                    </span>
                     <div>
-                      <CardTitle className="font-headline text-lg text-foreground">
+                      <CardTitle className="text-lg font-semibold text-foreground">
                         {platform.name}
                       </CardTitle>
-                      <CardDescription className="text-xs text-muted-foreground/75">
+                      <CardDescription className="text-xs text-muted-foreground/70">
                         {platform.description}
                       </CardDescription>
                     </div>
                   </div>
-                  <Badge
-                    variant="glass"
-                    className={cn('text-[0.55rem] tracking-[0.35em]', content.badgeClassName)}
-                  >
-                    {content.label}
+                  <Badge variant="glass" className={cn('text-[0.6rem]', status.badgeClassName)}>
+                    {status.label}
                   </Badge>
                 </div>
+
                 <div className="grid gap-3 sm:grid-cols-2">
                   {platform.metrics.map((metric) => (
                     <div
                       key={`${platform.name}-${metric.label}`}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl"
+                      className="rounded-2xl border border-white/10 bg-white/10 p-3 text-xs text-muted-foreground/70 backdrop-blur-xl"
                     >
-                      <p className="text-[0.6rem] uppercase tracking-[0.35em] text-muted-foreground/60">
+                      <p className="font-semibold uppercase tracking-[0.35em] text-muted-foreground/60">
                         {metric.label}
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-foreground">{metric.value}</p>
+                      <p className="mt-2 text-lg font-semibold text-foreground">{metric.value}</p>
                     </div>
                   ))}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <Button
-                    variant="glass"
-                    size="sm"
-                    className={cn(
-                      'w-full rounded-full px-5 text-[0.6rem] uppercase tracking-[0.35em] sm:w-auto',
-                      content.actionClassName,
-                    )}
-                  >
-                    {content.actionLabel}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      'w-full rounded-full border-white/15 px-5 text-[0.6rem] uppercase tracking-[0.35em] sm:w-auto',
-                      content.secondaryClassName,
-                    )}
-                  >
-                    {content.secondaryLabel}
-                  </Button>
-                </div>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground/70">
-                  {platform.owner && (
-                    <span className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-chart-2" />
-                      {platform.owner}
-                    </span>
-                  )}
+                  <PlugZap className="h-3.5 w-3.5" />
+                  <span>{platform.owner ?? 'Integração oficial Traffic Brain'}</span>
                   {platform.lastSync && (
-                    <span className="flex items-center gap-2">
-                      <RefreshCw className="h-4 w-4 text-chart-1" />
-                      Última sync {platform.lastSync}
+                    <span className="rounded-full border border-white/10 bg-white/10 px-2 py-1 text-[0.6rem] uppercase tracking-[0.35em]">
+                      Última sync: {platform.lastSync}
                     </span>
                   )}
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      'w-full rounded-full border px-4 py-2 text-[0.65rem] uppercase tracking-[0.35em] transition-all duration-300',
+                      status.actionClassName,
+                      isMeta && 'border-accent/40'
+                    )}
+                    disabled={statusKey === 'beta' || (isMeta && loadingMetaConnect)}
+                    onClick={isMeta ? handleMetaConnect : undefined}
+                  >
+                    {isMeta && loadingMetaConnect ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Conectando...
+                      </span>
+                    ) : (
+                      actionLabel
+                    )}
+                  </Button>
+                  <Button
+                    variant="link"
+                    className={cn(
+                      'w-full rounded-full px-4 py-2 text-[0.65rem] uppercase tracking-[0.35em] transition-colors',
+                      status.secondaryClassName,
+                    )}
+                  >
+                    {status.secondaryLabel}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

@@ -41,7 +41,8 @@ import {
   buildExportRows,
   ensureValidPlatforms,
   getDefaultSelections,
-  platformDefinitions,
+  getPlatformDefinitions,
+  type PlatformDefinition,
   type AggregatedKpis,
   type DateRange,
   type DailyData,
@@ -398,16 +399,17 @@ const DashboardErrorState = ({ message }: { message: string }) => (
 
 const PlatformToggle = ({
   platform,
+  definition,
   active,
   onToggle,
 }: {
   platform: PlatformKey;
+  definition: PlatformDefinition;
   active: boolean;
   onToggle: (platform: PlatformKey) => void;
 }) => {
   const Icon = platformIcons[platform];
-  const definition = platformDefinitions[platform];
-
+  
   return (
     <Button
       type="button"
@@ -428,14 +430,15 @@ const PlatformToggle = ({
 
 const BusinessManagerSelector = ({
   platform,
+  definition,
   value,
   onChange,
 }: {
   platform: PlatformKey;
+  definition: PlatformDefinition;
   value: string;
   onChange: (platform: PlatformKey, value: string) => void;
 }) => {
-  const definition = platformDefinitions[platform];
   return (
     <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl">
       <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground/70">
@@ -458,8 +461,15 @@ const BusinessManagerSelector = ({
 };
 
 export default function DashboardPage() {
-  const [activePlatforms, setActivePlatforms] = useState<PlatformKey[]>(["meta", "google", "tiktok"]);
-  const [selectedManagers, setSelectedManagers] = useState<Record<PlatformKey, string>>(getDefaultSelections());
+  const [definitions, setDefinitions] = useState<Record<PlatformKey, PlatformDefinition>>(
+    getPlatformDefinitions()
+  );
+  const [activePlatforms, setActivePlatforms] = useState<PlatformKey[]>(() =>
+    ensureValidPlatforms(Object.keys(getPlatformDefinitions()) as PlatformKey[])
+  );
+  const [selectedManagers, setSelectedManagers] = useState<Record<PlatformKey, string>>(
+    getDefaultSelections()
+  );
   const [range, setRange] = useState<PickerRange | undefined>({
     from: new Date(2024, 8, 26),
     to: new Date(2024, 9, 9),
@@ -467,6 +477,52 @@ export default function DashboardPage() {
   const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadDefinitions = async () => {
+      try {
+        const response = await fetch("/api/dashboard/platforms", {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error("Não foi possível carregar as plataformas conectadas.");
+        }
+        const payload = (await response.json()) as Record<PlatformKey, PlatformDefinition>;
+        setDefinitions(payload);
+        setSelectedManagers((current) => {
+          const next = {} as Record<PlatformKey, string>;
+          const entries = Object.entries(payload) as [PlatformKey, PlatformDefinition][];
+          entries.forEach(([platform, definition]) => {
+            const candidates = definition.businessManagers;
+            if (!candidates.length) {
+              next[platform] = "";
+              return;
+            }
+            const existing = current[platform];
+            const fallback = candidates[0]?.id ?? "";
+            next[platform] = candidates.some((manager) => manager.id === existing)
+              ? existing
+              : fallback;
+          });
+          return next;
+        });
+        setActivePlatforms((current) => {
+          const available = Object.keys(payload) as PlatformKey[];
+          const filtered = current.filter((platform) => available.includes(platform)) as PlatformKey[];
+          const basis = filtered.length ? filtered : available;
+          return basis.length ? ensureValidPlatforms(basis) : [];
+        });
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+        console.error("Erro ao carregar definições de plataforma", err);
+      }
+    };
+
+    loadDefinitions();
+
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -580,24 +636,32 @@ export default function DashboardPage() {
 
       <section className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          {(Object.keys(platformDefinitions) as PlatformKey[]).map((platform) => (
-            <PlatformToggle
-              key={platform}
-              platform={platform}
-              active={activePlatforms.includes(platform)}
-              onToggle={handleTogglePlatform}
-            />
-          ))}
+          {(Object.entries(definitions) as [PlatformKey, PlatformDefinition][]).map(
+            ([platform, definition]) => (
+              <PlatformToggle
+                key={platform}
+                platform={platform}
+                definition={definition}
+                active={activePlatforms.includes(platform)}
+                onToggle={handleTogglePlatform}
+              />
+            )
+          )}
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {activePlatforms.map((platform) => (
-            <BusinessManagerSelector
-              key={platform}
-              platform={platform}
-              value={selectedManagers[platform]}
-              onChange={handleManagerChange}
-            />
-          ))}
+          {activePlatforms.map((platform) => {
+            const definition = definitions[platform];
+            if (!definition) return null;
+            return (
+              <BusinessManagerSelector
+                key={platform}
+                platform={platform}
+                definition={definition}
+                value={selectedManagers[platform]}
+                onChange={handleManagerChange}
+              />
+            );
+          })}
         </div>
       </section>
 

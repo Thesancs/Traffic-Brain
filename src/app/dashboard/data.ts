@@ -65,7 +65,7 @@ const platformPalette: Record<PlatformKey, string> = {
   tiktok: "hsl(var(--chart-3))",
 };
 
-export const platformDefinitions: Record<PlatformKey, PlatformDefinition> = {
+const basePlatformDefinitions: Record<PlatformKey, PlatformDefinition> = {
   meta: {
     key: "meta",
     label: "Meta Ads",
@@ -323,6 +323,32 @@ export const platformDefinitions: Record<PlatformKey, PlatformDefinition> = {
   },
 };
 
+type PlatformDefinitionMap = Record<PlatformKey, PlatformDefinition>;
+
+const dynamicBusinessManagers: Partial<Record<PlatformKey, BusinessManager[]>> = {
+  meta: [],
+  google: [],
+  tiktok: [],
+};
+
+const mergePlatformDefinition = (platform: PlatformKey): PlatformDefinition => {
+  const base = basePlatformDefinitions[platform];
+  const dynamic = dynamicBusinessManagers[platform] ?? [];
+  return {
+    ...base,
+    businessManagers: [...base.businessManagers, ...dynamic],
+  };
+};
+
+export const getPlatformDefinitions = (): PlatformDefinitionMap => ({
+  meta: mergePlatformDefinition("meta"),
+  google: mergePlatformDefinition("google"),
+  tiktok: mergePlatformDefinition("tiktok"),
+});
+
+export const getPlatformDefinition = (platform: PlatformKey): PlatformDefinition =>
+  mergePlatformDefinition(platform);
+
 export type AggregatedTotals = {
   cost: number;
   impressions: number;
@@ -348,6 +374,15 @@ type ManagerScaling = {
 };
 
 const managerScaleCache = new Map<string, ManagerScaling>();
+
+export const setDynamicBusinessManagers = (platform: PlatformKey, managers: BusinessManager[]) => {
+  dynamicBusinessManagers[platform] = managers;
+  managers.forEach((manager) => managerScaleCache.delete(manager.id));
+};
+
+export const getDynamicBusinessManagers = (platform: PlatformKey): BusinessManager[] => [
+  ...(dynamicBusinessManagers[platform] ?? []),
+];
 
 const computeManagerScale = (manager: BusinessManager): ManagerScaling => {
   const totals = manager.daily.reduce(
@@ -400,22 +435,25 @@ const filterDailyByRange = (daily: DailyData[], range?: DateRange) => {
   });
 };
 
-export const getDefaultSelections = () =>
-  Object.fromEntries(
-    (Object.keys(platformDefinitions) as PlatformKey[]).map((key) => {
-      const [first] = platformDefinitions[key].businessManagers;
+export const getDefaultSelections = () => {
+  const definitions = getPlatformDefinitions();
+  return Object.fromEntries(
+    (Object.keys(definitions) as PlatformKey[]).map((key) => {
+      const [first] = definitions[key].businessManagers;
       return [key, first?.id ?? ""];
     })
   ) as Record<PlatformKey, string>;
+};
 
 export const aggregateKpis = (
   platforms: PlatformKey[],
   selections: Record<PlatformKey, string>,
   range?: DateRange
 ): AggregatedKpis => {
+  const definitions = getPlatformDefinitions();
   const totals = platforms.reduce<AggregatedTotals>(
     (acc, platformKey) => {
-      const platform = platformDefinitions[platformKey];
+      const platform = definitions[platformKey];
       const manager = platform.businessManagers.find((item) => item.id === selections[platformKey]);
       if (!manager) return acc;
 
@@ -451,9 +489,10 @@ export const aggregateDailySeries = (
   selections: Record<PlatformKey, string>,
   range?: DateRange
 ) => {
+  const definitions = getPlatformDefinitions();
   const data = platforms
     .map((platformKey) => {
-      const platform = platformDefinitions[platformKey];
+      const platform = definitions[platformKey];
       const manager = platform.businessManagers.find((item) => item.id === selections[platformKey]);
       if (!manager) return [] as DailyData[];
       const scale = getManagerScale(manager);
@@ -504,8 +543,9 @@ export const buildExportRows = (
   selections: Record<PlatformKey, string>,
   range?: DateRange
 ): ExportRow[] => {
+  const definitions = getPlatformDefinitions();
   return platforms.map((platformKey) => {
-    const platform = platformDefinitions[platformKey];
+    const platform = definitions[platformKey];
     const manager = platform.businessManagers.find((item) => item.id === selections[platformKey]);
     if (!manager) {
       return {
@@ -539,8 +579,9 @@ export const getDistributionForSelection = (
   platforms: PlatformKey[],
   selections: Record<PlatformKey, string>
 ): PieSlice[] => {
+  const definitions = getPlatformDefinitions();
   return platforms.flatMap((platformKey) => {
-    const platform = platformDefinitions[platformKey];
+    const platform = definitions[platformKey];
     const manager = platform.businessManagers.find((item) => item.id === selections[platformKey]);
     return manager?.distribution ?? [];
   });

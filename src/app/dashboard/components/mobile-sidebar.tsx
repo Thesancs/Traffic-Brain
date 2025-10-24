@@ -3,10 +3,11 @@
 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { BrainCircuit, LayoutDashboard, Menu, Telescope, FileText } from "lucide-react"
+import { BrainCircuit, LayoutDashboard, Menu, Telescope, FileText, PlugZap } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { GoogleAdsIcon, MetaIcon, TikTokIcon } from "@/components/icons/platforms"
 
 const platformNav = {
     meta: [
@@ -26,6 +27,13 @@ const platformNav = {
     ]
 }
 
+const platformOptions = [
+    { name: "Meta Ads", href: "/dashboard/meta", icon: <MetaIcon className="h-5 w-5" /> },
+    { name: "Google Ads", href: "/dashboard/google", icon: <GoogleAdsIcon className="h-5 w-5" /> },
+    { name: "TikTok Ads", href: "/dashboard/tiktok", icon: <TikTokIcon className="h-5 w-5" /> },
+    { name: "Integrações", href: "/dashboard/integrations", icon: <PlugZap className="h-5 w-5" /> },
+]
+
 type Platform = keyof typeof platformNav;
 
 
@@ -33,6 +41,7 @@ export function MobileSidebar() {
     const pathname = usePathname();
     const currentPlatform = (pathname.split('/')[2] || '') as Platform;
     const isActive = (path: string) => pathname === path;
+    const isPlatformRoute = (path: string) => pathname.startsWith(path);
     const navItems = platformNav[currentPlatform] || [];
 
     return (
@@ -81,6 +90,31 @@ export function MobileSidebar() {
                     <span>Dashboard</span>
                   </div>
                 </Link>
+
+                <div>
+                  <span className="text-[0.6rem] uppercase tracking-[0.4em] text-muted-foreground/60">Plataformas</span>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {platformOptions.map(option => (
+                      <Link
+                        key={option.name}
+                        href={option.href}
+                        className={cn(
+                          "group flex items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-300",
+                          isPlatformRoute(option.href)
+                            ? "bg-white/15 text-foreground shadow-glass-hover"
+                            : "text-muted-foreground/80 hover:bg-white/5 hover:text-foreground"
+                        )}
+                      >
+                        <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
+                          {option.icon}
+                        </span>
+                        <span>{option.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass-divider" />
 
                 {navItems.length > 0 && (
                   <div>

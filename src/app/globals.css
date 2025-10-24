@@ -213,7 +213,7 @@
     line-height: 1.05;
     letter-spacing: -0.02em;
     font-feature-settings: "tnum" 1, "lnum" 1;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 
   .auto-scale-number-sm {
@@ -221,7 +221,7 @@
     line-height: 1.1;
     letter-spacing: -0.015em;
     font-feature-settings: "tnum" 1, "lnum" 1;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
   }
 
   .shadow-glass {

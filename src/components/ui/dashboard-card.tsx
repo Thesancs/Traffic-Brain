@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AutoScaleNumber } from "@/components/ui/auto-scale-number";
 import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
@@ -26,14 +27,13 @@ export function DashboardCard({ title, value, icon, subtext, highlight }: Dashbo
         {icon && <span className="text-accent drop-shadow-[0_0_8px_rgba(0,247,255,0.45)]">{icon}</span>}
       </CardHeader>
         <CardContent className="space-y-2">
-          <div
+          <AutoScaleNumber
+            value={value}
             className={cn(
-              "auto-scale-number font-headline font-semibold text-foreground",
+              "font-headline font-semibold text-foreground",
               highlight && "text-accent neon-text"
             )}
-          >
-            {value}
-          </div>
+          />
           {subtext && <p className="text-xs text-muted-foreground/80">{subtext}</p>}
         </CardContent>
     </Card>
