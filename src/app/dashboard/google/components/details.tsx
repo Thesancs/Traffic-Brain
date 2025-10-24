@@ -8,7 +8,7 @@ import { formatNumber, formatCurrency } from "@/lib/formatters";
 import { PieChartCard } from "../../meta/components/pie-chart-card";
 
 const SearchTermsTable = () => (
-  <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+  <Card className="glass-card border-white/10 hover:shadow-glass-hover">
     <CardHeader>
       <CardTitle className="font-headline text-accent">Termos de Pesquisa Principais</CardTitle>
     </CardHeader>
@@ -36,7 +36,7 @@ const SearchTermsTable = () => (
 );
 
 const ConversionFunnelChart = () => (
-  <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+  <Card className="glass-card border-white/10 hover:shadow-glass-hover">
     <CardHeader>
       <CardTitle className="font-headline text-accent">Funil de Conversão (Google Ads)</CardTitle>
     </CardHeader>
@@ -60,7 +60,7 @@ const ConversionFunnelChart = () => (
 );
 
 const DevicePerformanceTable = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
       <CardHeader>
         <CardTitle className="font-headline text-accent">Desempenho por Dispositivo</CardTitle>
       </CardHeader>

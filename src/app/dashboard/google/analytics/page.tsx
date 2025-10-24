@@ -23,7 +23,7 @@ const KpiCards = () => (
 );
 
 const PerformanceChart = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader>
             <CardTitle className="font-headline text-accent">Usuários e Sessões</CardTitle>
         </CardHeader>
@@ -58,7 +58,7 @@ const PerformanceChart = () => (
 );
 
 const TopPagesTable = () => (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader>
             <CardTitle className="font-headline text-accent">Páginas Mais Acessadas</CardTitle>
         </CardHeader>

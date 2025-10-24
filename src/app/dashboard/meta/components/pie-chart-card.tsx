@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function PieChartCard({ title, data }: { title: string; data: { name: string; value: number; fill: string }[] }) {
   return (
-    <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+    <Card className="glass-card border-white/10 hover:shadow-glass-hover">
       <CardHeader>
         <CardTitle className="font-headline text-accent">{title}</CardTitle>
       </CardHeader>

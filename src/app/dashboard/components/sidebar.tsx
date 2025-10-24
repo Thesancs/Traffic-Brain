@@ -28,58 +28,88 @@ type Platform = keyof typeof platformNav;
 
 
 export function Sidebar() {
-    const pathname = usePathname();
-    const currentPlatform = (pathname.split('/')[2] || '') as Platform;
+  const pathname = usePathname();
+  const currentPlatform = (pathname.split('/')[2] || '') as Platform;
 
-    const isActive = (path: string) => pathname === path;
-    
-    const navItems = platformNav[currentPlatform] || [];
+  const isActive = (path: string) => pathname === path;
 
-    return (
-      <div className="hidden border-r bg-background/80 backdrop-blur-sm md:block">
-        <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/dashboard" className="flex items-center gap-3 font-semibold">
-                <div className="p-2 rounded-lg text-accent" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
-                    <BrainCircuit className="size-6" />
-                </div>
-                <span className="text-xl font-bold text-accent font-headline" style={{ filter: 'drop-shadow(0 0 6px hsl(var(--accent)))' }}>
-                    Traffic Brain
-                </span>
+  const navItems = platformNav[currentPlatform] || [];
+
+  return (
+    <aside className="glass-panel hidden max-h-[calc(100vh-3.5rem)] flex-col justify-between overflow-hidden p-6 md:sticky md:top-6 md:flex">
+      <div className="flex flex-col gap-6">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div className="rounded-2xl border border-accent/40 bg-accent/10 p-3 text-accent shadow-neon-blue">
+            <BrainCircuit className="h-6 w-6" />
+          </div>
+          <div>
+            <span className="text-xs uppercase tracking-[0.45em] text-muted-foreground/70">Traffic Brain</span>
+            <h1 className="text-xl font-semibold text-foreground">Command Center</h1>
+          </div>
+        </Link>
+
+        <div className="glass-divider" />
+
+        <nav className="flex flex-col gap-2 text-sm font-medium">
+          <Link
+            href="/dashboard"
+            className={cn(
+              "group relative flex items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-300",
+              pathname === '/dashboard'
+                ? "bg-white/15 text-foreground shadow-glass-hover"
+                : "text-muted-foreground/80 hover:bg-white/5 hover:text-foreground"
+            )}
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
+              <LayoutDashboard className="h-4 w-4" />
+            </span>
+            <div className="flex flex-1 flex-col">
+              <span className="text-xs uppercase tracking-[0.4em] text-muted-foreground/70">Visão geral</span>
+              <span className="text-sm">Painel unificado</span>
+            </div>
+          </Link>
+
+          {navItems.length > 0 && (
+            <div className="pt-2">
+              <span className="text-[0.65rem] uppercase tracking-[0.4em] text-muted-foreground/60">Plataforma atual</span>
+            </div>
+          )}
+
+          {navItems.map(item => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={cn(
+                "group relative flex items-center gap-3 rounded-2xl px-3 py-2 transition-all duration-300",
+                isActive(item.href)
+                  ? "bg-white/15 text-foreground shadow-glass-hover"
+                  : "text-muted-foreground/75 hover:bg-white/5 hover:text-foreground"
+              )}
+            >
+              <span className="flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/10">
+                {item.icon}
+              </span>
+              <span className="text-sm font-medium">{item.name}</span>
+              {isActive(item.href) && <span className="ml-auto h-2 w-2 rounded-full bg-accent shadow-neon-blue" />}
             </Link>
-          </div>
-          <div className="flex-1">
-            <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              <Link
-                href="/dashboard"
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                  pathname === '/dashboard' && "text-primary bg-muted"
-                )}
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Link>
-              {navItems.length > 0 && <div className="my-2 border-t border-border/50"></div>}
-              {navItems.map(item => (
-                <Link
-                    key={item.name}
-                    href={item.href}
-                    className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                    isActive(item.href) && "text-primary bg-muted"
-                    )}
-                >
-                    {item.icon}
-                    {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="mt-auto p-4">
-            {/* Can add a card for upgrade or settings here */}
-          </div>
+          ))}
+        </nav>
+      </div>
+
+      <div className="mt-6 space-y-3 text-xs text-muted-foreground/70">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+          <p className="font-semibold text-foreground">Automação inteligente</p>
+          <p className="mt-2 text-xs text-muted-foreground/70">
+            Centralize decisões de mídia com IA e fluxos automatizados.
+          </p>
+          <Link
+            href="/dashboard/meta"
+            className="mt-3 inline-flex items-center text-xs font-semibold text-accent hover:text-accent/80"
+          >
+            Explorar road map →
+          </Link>
         </div>
       </div>
-    );
-  }
+    </aside>
+  );
+}

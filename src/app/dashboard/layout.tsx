@@ -3,25 +3,21 @@
 
 import RetroGrid from "@/components/magicui/retro-grid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { Sidebar } from "./components/sidebar";
 import { MobileSidebar } from "./components/mobile-sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Facebook, Chrome, Plug } from "lucide-react";
+import { Plug, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PlatformLoading } from "./components/platform-loading";
-
-const TikTokIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556v2.177c.144.715.54 1.617 1.235 2.512C10.895 11.39 11.797 12 13 12v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556V6.177c-1.32.016-2.517-.556-3.5-1.556v-2.2c1.32.016 2.517.556 3.5 1.556V0Z"/>
-  </svg>
-);
+import { GoogleAdsIcon, MetaIcon, TikTokIcon } from "@/components/icons/platforms";
 
 const topNavLinks = [
-  { name: "Meta Ads", href: "/dashboard/meta", icon: <Facebook /> },
-  { name: "Google Ads", href: "/dashboard/google", icon: <Chrome /> },
-  { name: "TikTok Ads", href: "/dashboard/tiktok", icon: <TikTokIcon /> },
+  { name: "Meta Ads", href: "/dashboard/meta", icon: <MetaIcon className="h-5 w-7" /> },
+  { name: "Google Ads", href: "/dashboard/google", icon: <GoogleAdsIcon className="h-5 w-7" /> },
+  { name: "TikTok Ads", href: "/dashboard/tiktok", icon: <TikTokIcon className="h-5 w-7" /> },
   { name: "Integrações", href: "/dashboard/integrations", icon: <Plug /> },
 ];
 
@@ -30,18 +26,27 @@ function HeaderNav() {
   const isActive = (path: string) => pathname.startsWith(path);
 
   return (
-    <nav className="hidden md:flex items-center space-x-2 lg:space-x-4">
+    <nav className="hidden md:flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 backdrop-blur-2xl">
       {topNavLinks.map(link => (
         <Link
           key={link.name}
           href={link.href}
           className={cn(
-            "flex items-center gap-2 text-sm font-medium rounded-md px-3 py-2 transition-colors hover:bg-muted",
-            isActive(link.href) ? "bg-primary/10 text-primary" : "text-muted-foreground"
+            "group relative flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300",
+            isActive(link.href)
+              ? "bg-white/15 text-foreground shadow-glass-hover"
+              : "text-muted-foreground/80 hover:bg-white/5 hover:text-foreground"
           )}
         >
-          {link.icon}
-          {link.name}
+          <span
+            className={cn(
+              "flex h-7 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10",
+              isActive(link.href) ? "text-accent" : "text-muted-foreground"
+            )}
+          >
+            {link.icon}
+          </span>
+          <span className="tracking-[0.2em]">{link.name}</span>
         </Link>
       ))}
     </nav>
@@ -57,38 +62,69 @@ export default function DashboardLayout({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
+    const startTimer = window.setTimeout(() => {
+      setLoading(true);
+    }, 0);
+    const settleTimer = window.setTimeout(() => {
       setLoading(false);
-    }, 1500); // Simulate loading time
+    }, 900);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(settleTimer);
+    };
   }, [pathname]);
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Sidebar />
-      <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 lg:h-[60px] lg:px-6">
-          <MobileSidebar />
-          <HeaderNav />
+    <div className="relative mx-auto flex w-full max-w-[1440px] flex-1 px-4 pb-10 pt-6 md:px-6 lg:px-10">
+      <div className="grid w-full items-start gap-6 md:grid-cols-[260px_1fr] lg:grid-cols-[300px_1fr]">
+        <Sidebar />
+        <div className="flex flex-col gap-6">
+          <header className="glass-panel flex flex-wrap items-center gap-4 px-4 py-4 md:px-6">
+            <div className="flex items-center gap-3">
+              <MobileSidebar />
+              <HeaderNav />
+            </div>
 
-          <div className="w-full flex-1">
-            {/* Can add a search bar here if needed */}
-          </div>
-          <span className="hidden text-sm font-medium sm:inline">
-            Conta Logada
-          </span>
-          <Avatar className="w-8 h-8">
-            <AvatarImage src="https://picsum.photos/seed/123/40/40" alt="User" data-ai-hint="person avatar" />
-            <AvatarFallback>TB</AvatarFallback>
-          </Avatar>
-        </header>
-        <main className="relative flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-           <RetroGrid />
-           {loading && <PlatformLoading />}
-           <div className={cn("relative z-10 transition-opacity duration-500", loading && "opacity-0")}>{children}</div>
-        </main>
+            <div className="ml-auto flex flex-wrap items-center gap-3">
+              <div className="hidden rounded-full border border-white/10 bg-white/10 px-4 py-1 text-xs font-medium text-muted-foreground/80 backdrop-blur-xl lg:flex lg:items-center lg:gap-2">
+                <span className="flex items-center gap-1 text-accent neon-text">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Insights ao vivo
+                </span>
+                <span className="text-muted-foreground/70">Atualizado há 5 min</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-foreground hover:bg-white/20"
+              >
+                Exportar
+              </Button>
+              <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-medium text-muted-foreground/80 backdrop-blur-xl">
+                <span className="hidden sm:inline">Conta Logada</span>
+                <Avatar className="h-9 w-9 border border-white/20 shadow-glass">
+                  <AvatarImage src="https://picsum.photos/seed/123/40/40" alt="User" data-ai-hint="person avatar" />
+                  <AvatarFallback>TB</AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
+          </header>
+          <main className="relative flex flex-1 flex-col gap-6">
+            <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+              <RetroGrid className="opacity-40" />
+            </div>
+            {loading && <PlatformLoading />}
+            <div
+              className={cn(
+                "relative z-10 flex flex-1 flex-col gap-6 transition-opacity duration-500",
+                loading && "pointer-events-none opacity-0"
+              )}
+            >
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );

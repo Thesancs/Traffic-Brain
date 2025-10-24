@@ -68,7 +68,7 @@ export default function TiktokAdsPage() {
         <DashboardCard title="Faturamento" value={formatCurrency(overviewKpis.revenue)} icon={<TrendingUp />} />
       </div>
 
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+      <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader>
           <CardTitle className="font-headline text-accent">Desempenho por Dia</CardTitle>
         </CardHeader>
@@ -103,7 +103,7 @@ export default function TiktokAdsPage() {
         </CardContent>
       </Card>
 
-      <Card className="bg-card/60 backdrop-blur-sm border-border/30 hover:shadow-neon-blue">
+      <Card className="glass-card border-white/10 hover:shadow-glass-hover">
         <CardHeader>
           <CardTitle className="font-headline text-accent">Desempenho das Campanhas</CardTitle>
         </CardHeader>

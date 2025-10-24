@@ -1,99 +1,145 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { addDays, format } from "date-fns"
-import { ptBR } from "date-fns/locale"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { DateRange } from "react-day-picker"
+import * as React from "react";
+import { addDays, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function DateRangePicker({
-  className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2024, 0, 20),
-    to: new Date(),
-  })
+export interface DateRangePickerProps {
+  className?: string;
+  value?: DateRange;
+  onApply?: (range?: DateRange) => void;
+  onChange?: (range?: DateRange) => void;
+}
 
-  const handlePresetChange = (value: string) => {
-    const now = new Date();
-    switch (value) {
-        case "today":
-            setDate({ from: now, to: now });
-            break;
-        case "yesterday":
-            setDate({ from: addDays(now, -1), to: addDays(now, -1) });
-            break;
-        case "last7":
-            setDate({ from: addDays(now, -6), to: now });
-            break;
-        case "last15":
-            setDate({ from: addDays(now, -14), to: now });
-            break;
-        case "last30":
-            setDate({ from: addDays(now, -29), to: now });
-            break;
-        case "last_quarter":
-            // This is a simplified version. A real implementation might need more complex logic.
-            setDate({ from: addDays(now, -90), to: now });
-            break;
-        case "last_semester":
-            setDate({ from: addDays(now, -180), to: now });
-            break;
-        case "last_year":
-            setDate({ from: addDays(now, -365), to: now });
-            break;
-        case "max":
-            setDate({ from: new Date(2024, 0, 1), to: now });
-            break;
-        default:
-            break;
+const defaultRange: DateRange = {
+  from: addDays(new Date(), -13),
+  to: new Date(),
+};
+
+const rangeKey = (range?: DateRange) =>
+  `${range?.from ? range.from.toISOString() : ""}|${range?.to ? range.to.toISOString() : ""}`;
+
+export function DateRangePicker({ className, value, onApply, onChange }: DateRangePickerProps) {
+  const [open, setOpen] = React.useState(false);
+  const [localRange, setLocalRange] = React.useState<DateRange | undefined>(value ?? defaultRange);
+
+  const fromTimestamp = value?.from ? value.from.getTime() : null;
+  const toTimestamp = value?.to ? value.to.getTime() : null;
+
+  React.useEffect(() => {
+    if (!value?.from && !value?.to) {
+      setLocalRange(undefined);
+      return;
     }
-  }
+    setLocalRange(value);
+  }, [fromTimestamp, toTimestamp, value]);
+
+  const emitChange = React.useCallback(
+    (next?: DateRange) => {
+      setLocalRange(next);
+      onChange?.(next);
+    },
+    [onChange]
+  );
+
+  const handlePresetChange = (preset: string) => {
+    const now = new Date();
+    let nextRange: DateRange | undefined;
+
+    switch (preset) {
+      case "today":
+        nextRange = { from: now, to: now };
+        break;
+      case "yesterday":
+        nextRange = { from: addDays(now, -1), to: addDays(now, -1) };
+        break;
+      case "last7":
+        nextRange = { from: addDays(now, -6), to: now };
+        break;
+      case "last15":
+        nextRange = { from: addDays(now, -14), to: now };
+        break;
+      case "last30":
+        nextRange = { from: addDays(now, -29), to: now };
+        break;
+      case "last_quarter":
+        nextRange = { from: addDays(now, -90), to: now };
+        break;
+      case "last_semester":
+        nextRange = { from: addDays(now, -180), to: now };
+        break;
+      case "last_year":
+        nextRange = { from: addDays(now, -365), to: now };
+        break;
+      case "max":
+        nextRange = { from: new Date(2024, 0, 1), to: now };
+        break;
+      default:
+        nextRange = localRange;
+        break;
+    }
+
+    emitChange(nextRange);
+  };
+
+  const handleSelect = (next?: DateRange) => {
+    emitChange(next);
+  };
+
+  const handleApply = () => {
+    const appliedRange = localRange ?? value ?? defaultRange;
+    onApply?.(appliedRange);
+    setOpen(false);
+  };
+
+  const displayRange = localRange ?? defaultRange;
 
   return (
     <div className={cn("grid gap-2", className)}>
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             id="date"
-            variant={"outline"}
+            variant="outline"
             className={cn(
-              "w-full sm:w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              "glass-button w-full justify-start text-left font-normal sm:w-[320px]",
+              !displayRange && "text-muted-foreground"
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
+            {displayRange?.from ? (
+              displayRange.to ? (
                 <>
-                  {format(date.from, "LLL dd, y", { locale: ptBR })} -{" "}
-                  {format(date.to, "LLL dd, y", { locale: ptBR })}
+                  {format(displayRange.from, "LLL dd, y", { locale: ptBR })} -{" "}
+                  {format(displayRange.to, "LLL dd, y", { locale: ptBR })}
                 </>
               ) : (
-                format(date.from, "LLL dd, y", { locale: ptBR })
+                format(displayRange.from, "LLL dd, y", { locale: ptBR })
               )
             ) : (
               <span>Selecione uma data</span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 flex flex-col sm:flex-row" align="end">
-          <div className="p-2 border-b sm:border-r sm:border-b-0">
+        <PopoverContent className="flex w-auto flex-col gap-3 p-0 sm:flex-row" align="end">
+          <div className="border-b p-3 sm:border-b-0 sm:border-r">
             <Select onValueChange={handlePresetChange}>
-              <SelectTrigger>
+              <SelectTrigger className="glass-input w-[200px]">
                 <SelectValue placeholder="Períodos" />
               </SelectTrigger>
-              <SelectContent position="popper">
+              <SelectContent position="popper" className="glass-panel border-white/10">
                 <SelectItem value="today">Hoje</SelectItem>
                 <SelectItem value="yesterday">Ontem</SelectItem>
                 <SelectItem value="last7">Últimos 7 dias</SelectItem>
@@ -109,14 +155,22 @@ export function DateRangePicker({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={setDate}
+            defaultMonth={displayRange?.from}
+            selected={localRange}
+            onSelect={handleSelect}
             numberOfMonths={2}
             locale={ptBR}
           />
+          <div className="flex items-center justify-end gap-2 border-t p-3 sm:flex-col sm:items-stretch sm:justify-between sm:border-l sm:border-t-0">
+            <Button variant="ghost" className="justify-center" onClick={() => emitChange(undefined)}>
+              Limpar
+            </Button>
+            <Button onClick={handleApply} className="justify-center">
+              Aplicar
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
