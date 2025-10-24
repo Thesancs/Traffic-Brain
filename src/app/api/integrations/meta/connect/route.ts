@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import type { BusinessManager, PieSlice } from "@/app/dashboard/data";
 import { setDynamicBusinessManagers } from "@/app/dashboard/data";
 import { MetaIntegration } from "@/lib/server/integrations/meta";
+import { SyncHistoryStore } from "@/lib/server/sync-history";
 import { TokenStore } from "@/lib/server/token-store";
 
 const integration = new MetaIntegration();
@@ -184,6 +185,7 @@ export async function POST(request: NextRequest) {
     setDynamicBusinessManagers("meta", managers);
 
     const store = new TokenStore();
+    const history = new SyncHistoryStore();
     await Promise.all(
       managers.map((manager) =>
         store.set({
@@ -198,6 +200,9 @@ export async function POST(request: NextRequest) {
         })
       )
     );
+
+    const now = new Date().toISOString();
+    await history.set({ platform: "meta", syncedAt: now, source: "api" });
 
     return NextResponse.json({
       success: true,

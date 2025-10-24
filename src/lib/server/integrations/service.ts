@@ -10,6 +10,7 @@ import {
   type PlatformKey,
 } from "@/app/dashboard/data";
 import { TokenStore, type StoredTokenRecord } from "../token-store";
+import { SyncHistoryStore, toSyncMetadata, type SyncMetadata } from "../sync-history";
 import { getIntegrationClient } from "./registry";
 import type { OAuthTokenPayload, SyncOptions } from "./types";
 
@@ -46,11 +47,15 @@ type LiveMetric = {
   source: "api" | "fallback";
 };
 
+type SnapshotMetadata = Record<PlatformKey, SyncMetadata>;
+
 export class IntegrationService {
   private store: TokenStore;
+  private history: SyncHistoryStore;
 
-  constructor(store = new TokenStore()) {
+  constructor(store = new TokenStore(), history = new SyncHistoryStore()) {
     this.store = store;
+    this.history = history;
   }
 
   async registerToken(record: StoredTokenRecord) {
@@ -106,22 +111,35 @@ export class IntegrationService {
     );
 
     const totalsPerPlatform: AggregatedTotals[] = [];
+    const metadata: SnapshotMetadata = {} as SnapshotMetadata;
+    const historyRecords = await this.history.list(validPlatforms);
 
-    validPlatforms.forEach((platform, index) => {
+    for (let index = 0; index < validPlatforms.length; index += 1) {
+      const platform = validPlatforms[index];
       const live = liveResults[index];
+
       if (live) {
         totalsPerPlatform.push(live.totals);
-      } else {
-        const fallback = aggregateKpis([platform], selections, range);
-        totalsPerPlatform.push({
-          cost: fallback.cost,
-          impressions: fallback.impressions,
-          clicks: fallback.clicks,
-          conversions: fallback.conversions,
-          revenue: fallback.revenue,
-        });
+        const now = new Date().toISOString();
+        if (live.source === "api") {
+          await this.history.set({ platform, syncedAt: now, source: "api" });
+          metadata[platform] = { syncedAt: now, source: "api" };
+        } else {
+          metadata[platform] = toSyncMetadata(historyRecords[platform] ?? null, live.source);
+        }
+        continue;
       }
-    });
+
+      const fallback = aggregateKpis([platform], selections, range);
+      totalsPerPlatform.push({
+        cost: fallback.cost,
+        impressions: fallback.impressions,
+        clicks: fallback.clicks,
+        conversions: fallback.conversions,
+        revenue: fallback.revenue,
+      });
+      metadata[platform] = toSyncMetadata(historyRecords[platform] ?? null);
+    }
 
     const combined = combineTotals(totalsPerPlatform);
     const kpis = deriveRates(combined);
@@ -131,6 +149,7 @@ export class IntegrationService {
       daily: aggregateDailySeries(validPlatforms, selections, range),
       distribution: getDistributionForSelection(validPlatforms, selections),
       hasLiveData: liveResults.some(Boolean),
+      syncedAt: metadata,
     };
   }
 }

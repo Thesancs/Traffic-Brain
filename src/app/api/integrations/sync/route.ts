@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       kpis: snapshot.kpis,
       daily: snapshot.daily,
       distribution: snapshot.distribution,
+      syncedAt: snapshot.syncedAt,
     });
   } catch (error: any) {
     console.error("[API] integrations/sync erro:", error);

@@ -51,6 +51,7 @@ import {
 } from "./data";
 import { MetaIcon, GoogleAdsIcon, TikTokIcon } from "@/components/icons/platforms";
 import { exportKpiWorkbook } from "@/lib/exporters/kpi-export";
+import { formatRelativeOrNever } from "@/lib/formatters/relative-time";
 
 const platformIcons: Record<PlatformKey, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   meta: MetaIcon,
@@ -108,10 +109,16 @@ const serializeRange = (range?: PickerRange): DateRange | undefined => {
   };
 };
 
+type SyncMetadata = {
+  syncedAt: string | null;
+  source: "api" | "fallback";
+};
+
 type DashboardSnapshot = {
   kpis: AggregatedKpis;
   daily: DailyData[];
   distribution: PieSlice[];
+  syncedAt: Record<PlatformKey, SyncMetadata>;
 };
 
 function KpiCards({ kpis }: { kpis: AggregatedKpis | null }) {
@@ -569,6 +576,24 @@ export default function DashboardPage() {
   const aggregatedKpis = useMemo(() => snapshot?.kpis ?? null, [snapshot]);
   const chartData = useMemo(() => snapshot?.daily ?? [], [snapshot]);
   const distribution = useMemo(() => snapshot?.distribution ?? [], [snapshot]);
+  const syncMetadata = useMemo(
+    () => snapshot?.syncedAt ?? ({} as Record<PlatformKey, SyncMetadata>),
+    [snapshot]
+  );
+
+  const lastSyncLabel = useMemo(() => {
+    const platformsToConsider = ensureValidPlatforms(activePlatforms);
+    const timestamps = platformsToConsider
+      .map((platform) => syncMetadata[platform]?.syncedAt)
+      .filter((value): value is string => Boolean(value));
+
+    if (timestamps.length === 0) {
+      return "Sincronização pendente";
+    }
+
+    const latest = timestamps.reduce((acc, current) => (acc > current ? acc : current));
+    return `Última sync ${formatRelativeOrNever(latest)}`;
+  }, [activePlatforms, syncMetadata]);
 
   const handleTogglePlatform = (platform: PlatformKey) => {
     setActivePlatforms((current) => {
@@ -619,6 +644,9 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[0.6rem] uppercase tracking-[0.35em] text-muted-foreground/70">
+            {lastSyncLabel}
+          </span>
           <Button
             variant="outline"
             className="glass-button border-white/10"

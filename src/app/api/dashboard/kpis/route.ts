@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import type { DateRange, PlatformKey } from "@/app/dashboard/data";
-import {
-  ensureValidPlatforms,
-  aggregateKpis,
-  aggregateDailySeries,
-  getDistributionForSelection,
-  getDefaultSelections,
-} from "@/app/dashboard/data";
+import { ensureValidPlatforms, getDefaultSelections } from "@/app/dashboard/data";
 import { IntegrationService } from "@/lib/server/integrations/service";
 
 const parseRange = (range?: { from?: string | null; to?: string | null }): DateRange | undefined => {
@@ -48,19 +42,11 @@ export async function POST(request: NextRequest) {
       range,
     });
 
-    if (snapshot.hasLiveData) {
-      return NextResponse.json({
-        kpis: snapshot.kpis,
-        daily: snapshot.daily,
-        distribution: snapshot.distribution,
-      });
-    }
-
-    const fallbackKpis = aggregateKpis(validPlatforms, normalizedSelections, range);
     return NextResponse.json({
-      kpis: fallbackKpis,
-      daily: aggregateDailySeries(validPlatforms, normalizedSelections, range),
-      distribution: getDistributionForSelection(validPlatforms, normalizedSelections),
+      kpis: snapshot.kpis,
+      daily: snapshot.daily,
+      distribution: snapshot.distribution,
+      syncedAt: snapshot.syncedAt,
     });
   } catch (error: any) {
     console.error("[API] dashboard/kpis erro:", error);

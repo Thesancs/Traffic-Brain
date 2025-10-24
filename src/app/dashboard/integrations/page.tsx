@@ -19,6 +19,8 @@ import { cn } from '@/lib/utils';
 import { GoogleAdsIcon, MetaIcon, TikTokIcon } from '@/components/icons/platforms';
 import type { PlatformKey } from '@/app/dashboard/data';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AutoScaleNumber } from '@/components/ui/auto-scale-number';
+import { formatRelativeOrNever } from '@/lib/formatters/relative-time';
 
 type IntegrationStatus = 'connected' | 'available' | 'beta';
 
@@ -53,7 +55,6 @@ const integrationPlatforms: IntegrationPlatform[] = [
       'Sincronize campanhas, conjuntos de anúncios e eventos do Facebook e Instagram sem atrito.',
     icon: <MetaIcon className="h-6 w-9" />,
     status: 'connected',
-    lastSync: 'há 2 horas',
     owner: 'Squad Performance',
     metrics: [
       { label: 'Investimento', value: 'R$ 38,2K' },
@@ -67,7 +68,6 @@ const integrationPlatforms: IntegrationPlatform[] = [
       'Unifique mídia paga e comportamento onsite em um único fluxo com atribuição avançada.',
     icon: <GoogleAdsIcon className="h-6 w-9" />,
     status: 'connected',
-    lastSync: 'há 15 minutos',
     owner: 'Growth Ops',
     metrics: [
       { label: 'Investimento', value: 'R$ 24,6K' },
@@ -161,6 +161,51 @@ const heroHighlights = [
   },
 ];
 
+type SyncMetadata = {
+  syncedAt: string | null;
+  source: 'api' | 'fallback';
+};
+
+type SyncSchedule = {
+  frequency: 'hourly' | 'daily' | 'custom';
+  cron?: string;
+  timezone?: string;
+};
+
+const EMPTY_SYNC: SyncMetadata = { syncedAt: null, source: 'fallback' };
+
+const INITIAL_SYNC_STATE: Record<PlatformKey, SyncMetadata> = {
+  meta: { ...EMPTY_SYNC },
+  google: { ...EMPTY_SYNC },
+  tiktok: { ...EMPTY_SYNC },
+};
+
+const describeSchedule = (schedule: SyncSchedule | null): string => {
+  if (!schedule) {
+    return 'Rotina automática desativada. Execute sincronizações manuais quando necessário.';
+  }
+
+  if (schedule.frequency === 'hourly') {
+    return 'Atualização automática a cada hora com monitoramento de falhas.';
+  }
+
+  if (schedule.frequency === 'daily') {
+    return 'Atualização automática diária com alertas inteligentes.';
+  }
+
+  if (schedule.frequency === 'custom' && schedule.cron) {
+    if (schedule.cron.includes('*/2')) {
+      return 'Atualização automática a cada 2 horas com failover inteligente.';
+    }
+    if (schedule.cron.includes('*/1')) {
+      return 'Atualização automática a cada hora personalizada.';
+    }
+    return `Rotina customizada (${schedule.cron}${schedule.timezone ? ` · ${schedule.timezone}` : ''}).`;
+  }
+
+  return 'Atualização programada disponível.';
+};
+
 const onboardingSteps = [
   {
     title: 'Escolha a plataforma',
@@ -182,6 +227,17 @@ export default function IntegrationsPage() {
     google: 0,
     tiktok: 0,
   });
+  const [syncMetadata, setSyncMetadata] = useState<Record<PlatformKey, SyncMetadata>>(() => ({
+    meta: { ...INITIAL_SYNC_STATE.meta },
+    google: { ...INITIAL_SYNC_STATE.google },
+    tiktok: { ...INITIAL_SYNC_STATE.tiktok },
+  }));
+  const [syncing, setSyncing] = useState<Record<PlatformKey, boolean>>({
+    meta: false,
+    google: false,
+    tiktok: false,
+  });
+  const [schedule, setSchedule] = useState<SyncSchedule | null>(null);
   const [loadingMetaConnect, setLoadingMetaConnect] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
 
@@ -197,12 +253,25 @@ export default function IntegrationsPage() {
         }
         const payload = await response.json() as {
           connections: Record<PlatformKey, Array<{ accountId: string }>>;
+          syncedAt?: Partial<Record<PlatformKey, SyncMetadata>>;
         };
         setConnections({
           meta: payload.connections.meta.length,
           google: payload.connections.google.length,
           tiktok: payload.connections.tiktok.length,
         });
+        if (payload.syncedAt) {
+          const syncedEntries = Object.entries(payload.syncedAt ?? {}) as [
+            PlatformKey,
+            SyncMetadata | undefined,
+          ][];
+          setSyncMetadata((current) => ({
+            ...current,
+            ...Object.fromEntries(
+              syncedEntries.map(([platform, metadata]) => [platform, metadata ?? { ...EMPTY_SYNC }]),
+            ),
+          }));
+        }
       } catch (error: any) {
         if (error?.name === 'AbortError') return;
         console.error('Erro ao buscar conexões de integrações', error);
@@ -214,9 +283,40 @@ export default function IntegrationsPage() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const loadSchedule = async () => {
+      try {
+        const response = await fetch('/api/integrations/schedule', {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error('Não foi possível carregar agendamento.');
+        }
+        const payload = await response.json() as { schedule?: SyncSchedule | null };
+        setSchedule(payload.schedule ?? null);
+      } catch (error: any) {
+        if (error?.name === 'AbortError') return;
+        console.error('Erro ao carregar agendamento de sincronização', error);
+      }
+    };
+
+    loadSchedule();
+
+    return () => controller.abort();
+  }, []);
+
   const computedPlatforms = useMemo<ComputedPlatform[]>(
     () =>
       integrationPlatforms.map((platform) => {
+        const metadata = platform.key && platform.key in syncMetadata
+          ? syncMetadata[platform.key as PlatformKey]
+          : undefined;
+        const fallbackSync = platform.lastSync ?? 'nunca';
+        const relativeSync = metadata?.syncedAt
+          ? formatRelativeOrNever(metadata.syncedAt)
+          : fallbackSync;
+
         if (platform.key === 'meta') {
           const isConnected = connections.meta > 0;
           return {
@@ -225,10 +325,13 @@ export default function IntegrationsPage() {
             metrics: isConnected
               ? [
                   { label: 'BM conectados', value: `${connections.meta}` },
-                  { label: 'Sincronização', value: 'Ativa' },
+                  {
+                    label: 'Sincronização',
+                    value: metadata?.syncedAt ? 'Ativa' : 'Pendente',
+                  },
                 ]
               : platform.metrics,
-            lastSync: isConnected ? 'há instantes' : platform.lastSync,
+            lastSync: isConnected ? relativeSync : fallbackSync,
             actionLabelOverride: isConnected ? 'Sincronizar agora' : 'Conectar via Facebook',
           };
         }
@@ -243,13 +346,14 @@ export default function IntegrationsPage() {
                 { label: 'BM conectados', value: `${total}` },
                 ...platform.metrics.slice(1),
               ],
+              lastSync: relativeSync,
             };
           }
         }
 
-        return { ...platform };
+        return { ...platform, lastSync: relativeSync };
       }),
-    [connections],
+    [connections, syncMetadata],
   );
 
   const connectedPlatforms = computedPlatforms.filter(
@@ -259,7 +363,15 @@ export default function IntegrationsPage() {
   const connectionProgress = computedPlatforms.length
     ? Math.round((connectedPlatforms.length / computedPlatforms.length) * 100)
     : 0;
-  const globalLastSync = connectedPlatforms[0]?.lastSync ?? 'há instantes';
+  const globalLastSync = useMemo(() => {
+    const timestamps = Object.values(syncMetadata)
+      .map((item) => item?.syncedAt)
+      .filter((value): value is string => Boolean(value));
+    if (!timestamps.length) return 'nunca';
+    const latest = timestamps.reduce((acc, current) => (acc > current ? acc : current));
+    return formatRelativeOrNever(latest);
+  }, [syncMetadata]);
+  const scheduleDescription = describeSchedule(schedule);
 
   const handleMetaConnect = async () => {
     if (typeof window === 'undefined') return;
@@ -286,6 +398,42 @@ export default function IntegrationsPage() {
       if (!redirected) {
         setLoadingMetaConnect(false);
       }
+    }
+  };
+
+  const handleManualSync = async (platform: PlatformKey) => {
+    setConnectError(null);
+    setSyncing((current) => ({ ...current, [platform]: true }));
+    try {
+      const response = await fetch('/api/integrations/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platforms: [platform] }),
+      });
+      const payload = await response.json() as {
+        syncedAt?: Partial<Record<PlatformKey, SyncMetadata>>;
+        message?: string;
+      };
+      if (!response.ok) {
+        throw new Error(payload?.message ?? 'Falha ao sincronizar plataforma.');
+      }
+      if (payload.syncedAt) {
+        const syncedEntries = Object.entries(payload.syncedAt ?? {}) as [
+          PlatformKey,
+          SyncMetadata | undefined,
+        ][];
+        setSyncMetadata((current) => ({
+          ...current,
+          ...Object.fromEntries(
+            syncedEntries.map(([key, value]) => [key, value ?? { ...EMPTY_SYNC }]),
+          ),
+        }));
+      }
+    } catch (error: any) {
+      console.error('Erro ao sincronizar plataformas', error);
+      setConnectError(error?.message ?? 'Não foi possível sincronizar a plataforma selecionada.');
+    } finally {
+      setSyncing((current) => ({ ...current, [platform]: false }));
     }
   };
 
@@ -360,10 +508,8 @@ export default function IntegrationsPage() {
                 <span>Sync global</span>
                 <RefreshCw className="h-3.5 w-3.5 text-chart-2" />
               </div>
-              <p className="mt-2 text-lg font-semibold text-foreground">{globalLastSync}</p>
-              <p className="mt-1 text-xs text-muted-foreground/70">
-                Atualização automática a cada 15 minutos com monitoramento de falhas.
-              </p>
+              <p className="mt-2 text-lg font-semibold text-foreground">Última sync: {globalLastSync}</p>
+              <p className="mt-1 text-xs text-muted-foreground/70">{scheduleDescription}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
               <div className="flex items-center gap-2 text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground/60">
@@ -445,6 +591,20 @@ export default function IntegrationsPage() {
           const status = statusContent[statusKey];
           const actionLabel = platform.actionLabelOverride ?? status.actionLabel;
           const isMeta = platform.key === 'meta';
+          const typedPlatform =
+            platform.key && ['meta', 'google', 'tiktok'].includes(platform.key)
+              ? (platform.key as PlatformKey)
+              : null;
+          const canSync = statusKey === 'connected' && typedPlatform !== null;
+          const isSyncing = typedPlatform ? syncing[typedPlatform] : false;
+          const isMetaConnecting = isMeta && statusKey !== 'connected' && loadingMetaConnect;
+          const primaryDisabled =
+            statusKey === 'beta' || isMetaConnecting || (canSync && isSyncing);
+          const onPrimaryClick = canSync && typedPlatform
+            ? () => handleManualSync(typedPlatform)
+            : isMeta && statusKey !== 'connected'
+              ? handleMetaConnect
+              : undefined;
 
           return (
             <Card
@@ -480,7 +640,12 @@ export default function IntegrationsPage() {
                       <p className="font-semibold uppercase tracking-[0.35em] text-muted-foreground/60">
                         {metric.label}
                       </p>
-                      <p className="mt-2 text-lg font-semibold text-foreground">{metric.value}</p>
+                      <div className="mt-2">
+                        <AutoScaleNumber
+                          value={metric.value}
+                          className="text-lg font-semibold text-foreground"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -504,13 +669,18 @@ export default function IntegrationsPage() {
                       status.actionClassName,
                       isMeta && 'border-accent/40'
                     )}
-                    disabled={statusKey === 'beta' || (isMeta && loadingMetaConnect)}
-                    onClick={isMeta ? handleMetaConnect : undefined}
+                    disabled={primaryDisabled}
+                    onClick={onPrimaryClick}
                   >
-                    {isMeta && loadingMetaConnect ? (
+                    {isMetaConnecting ? (
                       <span className="flex items-center justify-center gap-2">
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         Conectando...
+                      </span>
+                    ) : canSync && isSyncing ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Sincronizando...
                       </span>
                     ) : (
                       actionLabel
