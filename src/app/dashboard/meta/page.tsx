@@ -36,11 +36,59 @@ export default function MetaAdsPage() {
       return () => clearTimeout(timer);
     }, []);
 
-    const totalSpend = 12943.04;
-    const totalPurchases = 400;
+    const totalSpend = weeklyPerformance.reduce((sum, item) => sum + item.Gasto, 0);
+    const totalRevenue = weeklyPerformance.reduce((sum, item) => sum + item.Faturamento, 0);
+    const totalPurchases = weeklyPerformance.reduce((sum, item) => sum + item.Compras, 0);
+    const totalCheckouts = weeklyPerformance.reduce((sum, item) => sum + item.Checkouts, 0);
     const initiatedCheckouts = infoproductFunnelData.find(d => d.stage.includes('Checkout'))?.value || 0;
+
+    const checkoutCostTrend = weeklyPerformance.map((item) => ({
+      name: item.name,
+      value: item.Checkouts > 0 ? Number((item.Gasto / item.Checkouts).toFixed(2)) : 0,
+    }));
+
+    const cpaTrend = weeklyPerformance.map((item) => ({
+      name: item.name,
+      value: item.Compras > 0 ? Number((item.Gasto / item.Compras).toFixed(2)) : 0,
+    }));
+
+    const roasTrend = weeklyPerformance.map((item) => item.ROAS);
+
+    const formatChange = (current?: number, previous?: number) => {
+      if (current === undefined || previous === undefined) {
+        return "0.0%";
+      }
+
+      if (previous === 0) {
+        if (current === 0) return "0.0%";
+        return current > 0 ? "+100%" : "-100%";
+      }
+
+      const change = ((current - previous) / Math.abs(previous)) * 100;
+      const rounded = change.toFixed(1);
+      return `${change >= 0 ? "+" : ""}${rounded}%`;
+    };
+
+    const getLatestChange = (series: number[]) => {
+      if (series.length < 2) {
+        return "0.0%";
+      }
+      const current = series[series.length - 1];
+      const previous = series[series.length - 2];
+      return formatChange(current, previous);
+    };
+
+    const spendChange = getLatestChange(weeklyPerformance.map((item) => item.Gasto));
+    const revenueChange = getLatestChange(weeklyPerformance.map((item) => item.Faturamento));
+    const purchasesChange = getLatestChange(weeklyPerformance.map((item) => item.Compras));
+    const roasChange = getLatestChange(roasTrend);
+    const checkoutChange = getLatestChange(weeklyPerformance.map((item) => item.Checkouts));
+    const checkoutCostChange = getLatestChange(checkoutCostTrend.map((item) => item.value));
+    const cpaChange = getLatestChange(cpaTrend.map((item) => item.value));
+
     const costPerCheckout = initiatedCheckouts > 0 ? totalSpend / initiatedCheckouts : 0;
     const cpa = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
+    const averageRoas = totalSpend > 0 ? totalRevenue / totalSpend : 0;
   
     if (loading) {
       return <DashboardLoadingSkeleton />;
@@ -73,15 +121,15 @@ export default function MetaAdsPage() {
       <div className="flex flex-col gap-8">
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard title="Investimento" value={formatCurrency(totalSpend)} change="-28.2%" chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" />
-            <KpiCard title="Faturamento" value={formatCurrency(18986.46)} change="-22.4%" chartData={weeklyPerformance} chartDataKey="Faturamento" chartColor="hsl(var(--chart-3))" />
-            <KpiCard title="Compras" value={formatNumber(totalPurchases)} change="-23.8%" chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
-            <KpiCard title="ROAS Médio" value={formatDecimal(1.47)} change="+8.1%" chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" />
+            <KpiCard title="Investimento" value={formatCurrency(totalSpend)} change={spendChange} chartData={weeklyPerformance} chartDataKey="Gasto" chartColor="hsl(var(--chart-1))" tooltipFormatter={(value) => formatCurrency(value)} />
+            <KpiCard title="Faturamento" value={formatCurrency(totalRevenue)} change={revenueChange} chartData={weeklyPerformance} chartDataKey="Faturamento" chartColor="hsl(var(--chart-3))" tooltipFormatter={(value) => formatCurrency(value)} />
+            <KpiCard title="Compras" value={formatNumber(totalPurchases)} change={purchasesChange} chartData={weeklyPerformance} chartDataKey="Compras" chartColor="hsl(var(--chart-2))" />
+            <KpiCard title="ROAS Médio" value={formatDecimal(averageRoas)} change={roasChange} chartData={weeklyPerformance} chartDataKey="ROAS" chartColor="hsl(var(--chart-4))" tooltipFormatter={(value) => formatDecimal(value)} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <KpiCard title="Checkouts Iniciados" value={formatNumber(initiatedCheckouts)} change="-15%" chartData={weeklyPerformance} chartDataKey="Checkouts" chartColor="hsl(var(--chart-5))"/>
-            <KpiCard title="Custo por Checkout" value={formatCurrency(costPerCheckout)} change="+12%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-1))"/>
-            <KpiCard title="CPA (Custo por Compra)" value={formatCurrency(cpa)} change="+5%" chartData={[]} chartDataKey="" chartColor="hsl(var(--chart-2))" />
+            <KpiCard title="Checkouts Iniciados" value={formatNumber(totalCheckouts)} change={checkoutChange} chartData={weeklyPerformance} chartDataKey="Checkouts" chartColor="hsl(var(--chart-5))" />
+            <KpiCard title="Custo por Checkout" value={formatCurrency(costPerCheckout)} change={checkoutCostChange} chartData={checkoutCostTrend} chartColor="hsl(var(--chart-1))" tooltipFormatter={(value) => formatCurrency(value)} />
+            <KpiCard title="CPA (Custo por Compra)" value={formatCurrency(cpa)} change={cpaChange} chartData={cpaTrend} chartColor="hsl(var(--chart-2))" tooltipFormatter={(value) => formatCurrency(value)} />
         </div>
         
         <TrafficFunnel />

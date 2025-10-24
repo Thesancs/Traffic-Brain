@@ -16,17 +16,14 @@ export const overviewKpis = {
 };
 
 export const weeklyPerformance = [
-    { name: '01/09', Gasto: 8000, Faturamento: 25000, Compras: 120, ROAS: 3.1, Checkouts: 300 },
-    { name: '03/09', Gasto: 9500, Faturamento: 30000, Compras: 150, ROAS: 3.15, Checkouts: 350 },
-    { name: '05/09', Gasto: 11000, Faturamento: 35000, Compras: 180, ROAS: 3.18, Checkouts: 400 },
-    { name: '07/09', Gasto: 10000, Faturamento: 32000, Compras: 160, ROAS: 3.2, Checkouts: 380 },
-    { name: '09/09', Gasto: 13000, Faturamento: 45000, Compras: 220, ROAS: 3.46, Checkouts: 500 },
-    { name: '11/09', Gasto: 15000, Faturamento: 55000, Compras: 250, ROAS: 3.66, Checkouts: 550 },
-    { name: '13/09', Gasto: 12000, Faturamento: 40000, Compras: 200, ROAS: 3.33, Checkouts: 450 },
-    { name: '15/09', Gasto: 14000, Faturamento: 48000, Compras: 240, ROAS: 3.42, Checkouts: 520 },
-    { name: '17/09', Gasto: 16000, Faturamento: 60000, Compras: 280, ROAS: 3.75, Checkouts: 600 },
-    { name: '19/09', Gasto: 11000, Faturamento: 38000, Compras: 190, ROAS: 3.45, Checkouts: 420 },
-    { name: '21/09', Gasto: 12500, Faturamento: 42000, Compras: 210, ROAS: 3.36, Checkouts: 480 },
+    { name: '01/10', Gasto: 1620, Faturamento: 5480, Compras: 64, ROAS: 3.38, Checkouts: 90 },
+    { name: '03/10', Gasto: 1740, Faturamento: 5740, Compras: 68, ROAS: 3.30, Checkouts: 94 },
+    { name: '05/10', Gasto: 1560, Faturamento: 5160, Compras: 59, ROAS: 3.31, Checkouts: 86 },
+    { name: '07/10', Gasto: 1810, Faturamento: 6080, Compras: 72, ROAS: 3.36, Checkouts: 98 },
+    { name: '09/10', Gasto: 1885, Faturamento: 6425, Compras: 76, ROAS: 3.41, Checkouts: 102 },
+    { name: '11/10', Gasto: 1725, Faturamento: 5950, Compras: 70, ROAS: 3.45, Checkouts: 95 },
+    { name: '13/10', Gasto: 1603, Faturamento: 5520, Compras: 66, ROAS: 3.44, Checkouts: 90 },
+    { name: '15/10', Gasto: 1000, Faturamento: 3450, Compras: 45, ROAS: 3.45, Checkouts: 65 },
 ];
 
 export type FunnelStageData = {
@@ -38,11 +35,11 @@ export type FunnelStageData = {
 };
 
 export const infoproductFunnelData: FunnelStageData[] = [
-    { stage: 'Impressões', value: 1200000, costLabel: 'CPM', costValue: 15.00, costChange: 20.5 },
-    { stage: 'Cliques', value: 36000, costLabel: 'CPC', costValue: 0.50, costChange: 15.0 },
-    { stage: 'Page View', value: 25000, costLabel: 'Custo/Page View', costValue: 0.72, costChange: 10.2 },
-    { stage: 'Iniciou Checkout (IC)', value: 2500, costLabel: 'Custo/IC', costValue: 7.20 },
-    { stage: 'Compras', value: 1000, costLabel: 'Custo/Compra', costValue: 18.00 },
+    { stage: 'Impressões', value: 980000, costLabel: 'CPM', costValue: 12.75, costChange: 14.2 },
+    { stage: 'Cliques', value: 31500, costLabel: 'CPC', costValue: 0.40, costChange: 11.6 },
+    { stage: 'Page View', value: 22600, costLabel: 'Custo/Page View', costValue: 0.56, costChange: 8.4 },
+    { stage: 'Iniciou Checkout (IC)', value: 720, costLabel: 'Custo/IC', costValue: 17.98 },
+    { stage: 'Compras', value: 520, costLabel: 'Custo/Compra', costValue: 24.89 },
 ];
 
 export const messagesFunnelData: FunnelStageData[] = [
