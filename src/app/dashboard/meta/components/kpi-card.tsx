@@ -45,7 +45,7 @@ export function KpiCard({ title, value, change, chartData = [], chartDataKey = "
         </div>
       </CardHeader>
       <CardContent className="flex items-end justify-between gap-4">
-        <div className="text-3xl font-bold font-headline text-foreground">{value}</div>
+        <div className="auto-scale-number-sm font-headline font-bold text-foreground">{value}</div>
         <div className="w-24 h-12 -mb-4 -mr-2">
             {hasChartData ? (
               <ResponsiveContainer width="100%" height="100%">

@@ -4,8 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Chrome,
-  Facebook,
   Linkedin,
   PlugZap,
   RefreshCw,
@@ -15,19 +13,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-
-const TikTokIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 16 16"
-    fill="currentColor"
-    className={className}
-  >
-    <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556v2.177c.144.715.54 1.617 1.235 2.512C10.895 11.39 11.797 12 13 12v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556V6.177c-1.32.016-2.517-.556-3.5-1.556v-2.2c1.32.016 2.517.556 3.5 1.556V0Z" />
-  </svg>
-);
+import { GoogleAdsIcon, MetaIcon, TikTokIcon } from '@/components/icons/platforms';
 
 type IntegrationStatus = 'connected' | 'available' | 'beta';
 
@@ -51,7 +37,7 @@ const integrationPlatforms: IntegrationPlatform[] = [
     name: 'Meta Ads (Facebook)',
     description:
       'Sincronize campanhas, conjuntos de anúncios e eventos do Facebook e Instagram sem atrito.',
-    icon: <Facebook className="h-6 w-6" />,
+    icon: <MetaIcon className="h-6 w-9" />,
     status: 'connected',
     lastSync: 'há 2 horas',
     owner: 'Squad Performance',
@@ -64,7 +50,7 @@ const integrationPlatforms: IntegrationPlatform[] = [
     name: 'Google Ads & Analytics',
     description:
       'Unifique mídia paga e comportamento onsite em um único fluxo com atribuição avançada.',
-    icon: <Chrome className="h-6 w-6" />,
+    icon: <GoogleAdsIcon className="h-6 w-9" />,
     status: 'connected',
     lastSync: 'há 15 minutos',
     owner: 'Growth Ops',
@@ -88,7 +74,7 @@ const integrationPlatforms: IntegrationPlatform[] = [
   {
     name: 'TikTok Ads',
     description: 'Analise criativos, tendências de engajamento e atribuição em um só lugar.',
-    icon: <TikTokIcon className="h-6 w-6" />,
+    icon: <TikTokIcon className="h-6 w-9" />,
     status: 'beta',
     owner: 'Beta fechado',
     metrics: [

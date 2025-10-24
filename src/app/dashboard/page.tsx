@@ -1,20 +1,22 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertCircle,
   DollarSign,
+  Download,
+  MousePointer2,
+  Repeat,
+  Sparkles,
   Target,
   TrendingUp,
-  Users,
-  UserCheck,
-  Sparkles,
 } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import type { DateRange as PickerRange } from "react-day-picker";
 import {
   Area,
   AreaChart,
-  Line,
   CartesianGrid,
+  Line,
   ResponsiveContainer,
   XAxis,
   YAxis,
@@ -29,11 +31,31 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardCard } from "@/components/ui/dashboard-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DateRangePicker } from "@/app/dashboard/meta/components/date-range-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { calculateKpis, KpiData, mockChartData, DailyData } from "./data";
+import { DonutChartCard } from "@/app/dashboard/meta/components/donut-chart-card";
+import {
+  buildExportRows,
+  ensureValidPlatforms,
+  getDefaultSelections,
+  platformDefinitions,
+  type AggregatedKpis,
+  type DateRange,
+  type DailyData,
+  type PieSlice,
+  type PlatformKey,
+} from "./data";
+import { MetaIcon, GoogleAdsIcon, TikTokIcon } from "@/components/icons/platforms";
+import { exportKpiWorkbook } from "@/lib/exporters/kpi-export";
+
+const platformIcons: Record<PlatformKey, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  meta: MetaIcon,
+  google: GoogleAdsIcon,
+  tiktok: TikTokIcon,
+};
 
 const chartConfig = {
   revenue: {
@@ -54,30 +76,21 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const formatDecimal = (value: number, fractionDigits = 2) =>
+  new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(value);
 
 const formatNumber = (value: number) =>
-  new Intl.NumberFormat("pt-BR").format(value);
-
-const formatDecimal = (value: number) =>
   new Intl.NumberFormat("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   }).format(value);
 
-const formatPercentChange = (value: number) => {
-  if (!Number.isFinite(value)) return "0,00%";
-  const abs = Math.abs(value);
-  const formatted = formatDecimal(abs);
-  if (value > 0) return `+${formatted}%`;
-  if (value < 0) return `-${formatted}%`;
-  return `${formatted}%`;
-};
-
-const safeDivide = (numerator: number, denominator: number) =>
-  denominator === 0 ? 0 : numerator / denominator;
-
-const trendDelta = (current: number, previous: number) => {
+const percentChange = (current: number, previous: number) => {
   if (!Number.isFinite(current) || !Number.isFinite(previous)) return 0;
   if (previous === 0) {
     if (current === 0) return 0;
@@ -86,83 +99,89 @@ const trendDelta = (current: number, previous: number) => {
   return ((current - previous) / Math.abs(previous)) * 100;
 };
 
-function KpiCards({ kpis }: { kpis: KpiData }) {
-  const kpiList = [
+const serializeRange = (range?: PickerRange): DateRange | undefined => {
+  if (!range?.from && !range?.to) return undefined;
+  return {
+    from: range?.from,
+    to: range?.to,
+  };
+};
+
+type DashboardSnapshot = {
+  kpis: AggregatedKpis;
+  daily: DailyData[];
+  distribution: PieSlice[];
+};
+
+function KpiCards({ kpis }: { kpis: AggregatedKpis | null }) {
+  if (!kpis) return null;
+  const items = [
     {
-      title: "Investimento Total",
-      value: kpis.totalInvestment,
+      title: "Custo",
+      value: formatCurrency(kpis.cost),
       icon: <DollarSign />,
-      format: "currency",
     },
     {
-      title: "Leads Gerados",
-      value: kpis.totalLeads,
-      icon: <Users />,
-      format: "number",
+      title: "CPM",
+      value: formatCurrency(kpis.cpm),
+      icon: <Sparkles />,
     },
     {
-      title: "Receita Estimada",
-      value: kpis.estimatedRevenue,
-      icon: <TrendingUp />,
-      format: "currency",
+      title: "CTR",
+      value: `${formatDecimal(kpis.ctr, 2)}%`,
+      icon: <MousePointer2 />,
     },
     {
-      title: "ROAS Médio",
-      value: kpis.averageRoas,
+      title: "Conversões",
+      value: formatNumber(kpis.conversions),
       icon: <Target />,
-      format: "decimal",
-      highlight: true,
     },
     {
-      title: "Custo por Lead",
-      value: kpis.cpl,
-      icon: <UserCheck />,
-      format: "currency",
+      title: "CPA Médio",
+      value: formatCurrency(kpis.cpa),
+      icon: <Repeat />,
+    },
+    {
+      title: "Faturamento",
+      value: formatCurrency(kpis.revenue),
+      icon: <TrendingUp />,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      {kpiList.map((kpi) => (
-        <DashboardCard
-          key={kpi.title}
-          title={kpi.title}
-          value={
-            kpi.format === "currency"
-              ? formatCurrency(kpi.value)
-              : kpi.format === "decimal"
-                ? formatDecimal(kpi.value)
-                : formatNumber(kpi.value)
-          }
-          icon={kpi.icon}
-          highlight={kpi.highlight}
-        />
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      {items.map((item) => (
+        <DashboardCard key={item.title} title={item.title} value={item.value} icon={item.icon} />
       ))}
     </div>
   );
 }
 
 function ComparativeChart({ data }: { data: DailyData[] }) {
+  if (data.length === 0) return null;
+
   const latest = data.at(-1);
   const previous = data.at(-2) ?? latest;
 
-  const insights = latest && previous ? [
-    {
-      label: "Receita diária",
-      value: formatCurrency(latest.revenue),
-      change: trendDelta(latest.revenue, previous.revenue),
-    },
-    {
-      label: "Investimento diário",
-      value: formatCurrency(latest.spend),
-      change: trendDelta(latest.spend, previous.spend),
-    },
-    {
-      label: "Conversões",
-      value: formatNumber(latest.conversions),
-      change: trendDelta(latest.conversions, previous.conversions),
-    },
-  ] : [];
+  const insights = latest && previous
+    ? [
+        {
+          label: "Receita diária",
+          value: formatCurrency(latest.revenue),
+          change: percentChange(latest.revenue, previous.revenue),
+        },
+        {
+          label: "Investimento diário",
+          value: formatCurrency(latest.spend),
+          change: percentChange(latest.spend, previous.spend),
+        },
+        {
+          label: "Conversões",
+          value: formatNumber(latest.conversions),
+          change: percentChange(latest.conversions, previous.conversions),
+        },
+      ]
+    : [];
 
   return (
     <Card className="glass-card shadow-glass-hover">
@@ -176,123 +195,12 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
           </CardTitle>
         </div>
         <div className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs text-muted-foreground/70">
-          Intervalo automático
+          Atualização em tempo real
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <ChartContainer config={chartConfig} className="h-[280px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              accessibilityLayer
-              data={data}
-              margin={{
-                left: 12,
-                right: 12,
-              }}
-            >
-              <defs>
-                <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-spend)" stopOpacity={0.75} />
-                  <stop offset="95%" stopColor="var(--color-spend)" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.75} />
-                  <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-conversions)" stopOpacity={0.75} />
-                  <stop offset="95%" stopColor="var(--color-conversions)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.35)" />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={10}
-                tickFormatter={(value) => value.slice(0, 6)}
-              />
-              <YAxis
-                yAxisId="left"
-                stroke="hsl(var(--chart-1))"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => `R$${Number(value) / 1000}k`}
-              />
-              <YAxis
-                yAxisId="right"
-                orientation="right"
-                stroke="hsl(var(--chart-2))"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="dot" />}
-                contentStyle={{
-                  backgroundColor: "rgba(12, 16, 32, 0.85)",
-                  borderColor: "hsl(var(--border) / 0.4)",
-                  backdropFilter: "blur(12px)",
-                }}
-              />
-              <Area
-                yAxisId="left"
-                type="natural"
-                dataKey="spend"
-                stroke="var(--color-spend)"
-                fill="url(#colorSpend)"
-                stackId="1"
-                strokeWidth={2}
-              />
-              <Area
-                yAxisId="left"
-                type="natural"
-                dataKey="revenue"
-                stroke="var(--color-revenue)"
-                fill="url(#colorRevenue)"
-                stackId="1"
-                strokeWidth={2}
-              />
-              <Area
-                yAxisId="right"
-                type="natural"
-                dataKey="conversions"
-                stroke="var(--color-conversions)"
-                fill="url(#colorConversions)"
-                stackId="2"
-                strokeWidth={2}
-              />
-              <Line
-                dataKey="spend"
-                type="natural"
-                stroke="var(--color-spend)"
-                strokeWidth={2}
-                dot={false}
-                yAxisId="left"
-                style={{ filter: "drop-shadow(0 0 4px hsl(var(--chart-1)))" }}
-              />
-              <Line
-                dataKey="revenue"
-                type="natural"
-                stroke="var(--color-revenue)"
-                strokeWidth={2}
-                dot={false}
-                yAxisId="left"
-                style={{ filter: "drop-shadow(0 0 4px hsl(var(--chart-3)))" }}
-              />
-              <Line
-                dataKey="conversions"
-                type="natural"
-                stroke="var(--color-conversions)"
-                strokeWidth={2}
-                dot={false}
-                yAxisId="right"
-                style={{ filter: "drop-shadow(0 0 4px hsl(var(--chart-2)))" }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <ResponsiveAreaChart data={data} />
         </ChartContainer>
         {insights.length > 0 && (
           <div className="grid gap-4 md:grid-cols-3">
@@ -305,9 +213,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                   {insight.label}
                 </p>
                 <div className="mt-2 flex items-end justify-between gap-3">
-                  <span className="text-lg font-semibold text-foreground">
-                    {insight.value}
-                  </span>
+                  <span className="text-lg font-semibold text-foreground">{insight.value}</span>
                   <span
                     className={cn(
                       "text-xs font-semibold",
@@ -318,7 +224,7 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
                           : "text-muted-foreground/70"
                     )}
                   >
-                    {formatPercentChange(insight.change)}
+                    {formatDelta(insight.change)}
                   </span>
                 </div>
                 <span className="text-[0.65rem] text-muted-foreground/60">vs dia anterior</span>
@@ -331,10 +237,136 @@ function ComparativeChart({ data }: { data: DailyData[] }) {
   );
 }
 
+function ResponsiveAreaChart({ data }: { data: DailyData[] }) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart
+        accessibilityLayer
+        data={data.map((item) => ({
+          ...item,
+          label: new Date(item.date).toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+          }),
+        }))}
+        margin={{
+          left: 12,
+          right: 12,
+        }}
+      >
+        <defs>
+          <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-spend)" stopOpacity={0.75} />
+            <stop offset="95%" stopColor="var(--color-spend)" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.75} />
+            <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id="colorConversions" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-conversions)" stopOpacity={0.75} />
+            <stop offset="95%" stopColor="var(--color-conversions)" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.35)" />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={10}
+        />
+        <YAxis
+          yAxisId="left"
+          stroke="hsl(var(--chart-1))"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          tickFormatter={(value) => `${formatDecimal(Number(value) / 1000, 1)}k`}
+        />
+        <YAxis
+          yAxisId="right"
+          orientation="right"
+          stroke="hsl(var(--chart-2))"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={<ChartTooltipContent indicator="dot" />}
+          contentStyle={{
+            backgroundColor: "rgba(12, 16, 32, 0.85)",
+            borderColor: "hsl(var(--border) / 0.4)",
+            backdropFilter: "blur(12px)",
+          }}
+        />
+        <Area
+          yAxisId="left"
+          type="natural"
+          dataKey="spend"
+          stroke="var(--color-spend)"
+          fill="url(#colorSpend)"
+          strokeWidth={2}
+        />
+        <Area
+          yAxisId="left"
+          type="natural"
+          dataKey="revenue"
+          stroke="var(--color-revenue)"
+          fill="url(#colorRevenue)"
+          strokeWidth={2}
+        />
+        <Area
+          yAxisId="right"
+          type="natural"
+          dataKey="conversions"
+          stroke="var(--color-conversions)"
+          fill="url(#colorConversions)"
+          strokeWidth={2}
+        />
+        <Line
+          dataKey="spend"
+          type="natural"
+          stroke="var(--color-spend)"
+          strokeWidth={2}
+          dot={false}
+          yAxisId="left"
+          style={{ filter: "drop-shadow(0 0 4px hsl(var(--chart-1)))" }}
+        />
+        <Line
+          dataKey="revenue"
+          type="natural"
+          stroke="var(--color-revenue)"
+          strokeWidth={2}
+          dot={false}
+          yAxisId="left"
+          style={{ filter: "drop-shadow(0 0 4px hsl(var(--chart-3)))" }}
+        />
+        <Line
+          dataKey="conversions"
+          type="natural"
+          stroke="var(--color-conversions)"
+          strokeWidth={2}
+          dot={false}
+          yAxisId="right"
+          style={{ filter: "drop-shadow(0 0 4px hsl(var(--chart-2)))" }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+function formatDelta(value: number) {
+  const rounded = formatDecimal(Math.abs(value), 2);
+  if (value > 0) return `+${rounded}%`;
+  if (value < 0) return `-${rounded}%`;
+  return `${rounded}%`;
+}
+
 const DashboardLoadingSkeleton = () => (
   <div className="space-y-8">
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      {[...Array(5)].map((_, i) => (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      {[...Array(6)].map((_, i) => (
         <Card key={i} className="glass-card border-white/10">
           <CardHeader>
             <Skeleton className="h-3 w-1/2" />
@@ -364,138 +396,221 @@ const DashboardErrorState = ({ message }: { message: string }) => (
   </Alert>
 );
 
+const PlatformToggle = ({
+  platform,
+  active,
+  onToggle,
+}: {
+  platform: PlatformKey;
+  active: boolean;
+  onToggle: (platform: PlatformKey) => void;
+}) => {
+  const Icon = platformIcons[platform];
+  const definition = platformDefinitions[platform];
+
+  return (
+    <Button
+      type="button"
+      variant={active ? "default" : "outline"}
+      onClick={() => onToggle(platform)}
+      className={cn(
+        "flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium transition-all",
+        active
+          ? "shadow-[0_0_20px_rgba(59,130,246,0.35)]"
+          : "hover:bg-white/20"
+      )}
+    >
+      <Icon className="h-5 w-5 drop-shadow-[0_0_6px_rgba(0,0,0,0.25)]" />
+      {definition.label}
+    </Button>
+  );
+};
+
+const BusinessManagerSelector = ({
+  platform,
+  value,
+  onChange,
+}: {
+  platform: PlatformKey;
+  value: string;
+  onChange: (platform: PlatformKey, value: string) => void;
+}) => {
+  const definition = platformDefinitions[platform];
+  return (
+    <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl">
+      <div className="text-xs uppercase tracking-[0.35em] text-muted-foreground/70">
+        {definition.label}
+      </div>
+      <Select value={value} onValueChange={(next) => onChange(platform, next)}>
+        <SelectTrigger className="glass-input border-white/10">
+          <SelectValue placeholder="Selecione um BM" />
+        </SelectTrigger>
+        <SelectContent className="glass-panel border-white/10">
+          {definition.businessManagers.map((manager) => (
+            <SelectItem key={manager.id} value={manager.id}>
+              {manager.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+};
+
 export default function DashboardPage() {
+  const [activePlatforms, setActivePlatforms] = useState<PlatformKey[]>(["meta", "google", "tiktok"]);
+  const [selectedManagers, setSelectedManagers] = useState<Record<PlatformKey, string>>(getDefaultSelections());
+  const [range, setRange] = useState<PickerRange | undefined>({
+    from: new Date(2024, 8, 26),
+    to: new Date(2024, 9, 9),
+  });
+  const [snapshot, setSnapshot] = useState<DashboardSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<{
-    chartData: DailyData[];
-    kpiData: KpiData;
-  } | null>(null);
 
   useEffect(() => {
-    console.log("[Dashboard]", "Iniciando simulação de fetch de dados.");
-    const timer = setTimeout(() => {
+    const controller = new AbortController();
+    const validPlatforms: PlatformKey[] = ensureValidPlatforms(activePlatforms);
+
+    const fetchSnapshot = async () => {
       try {
-        const kpis = calculateKpis(mockChartData);
-        setData({ chartData: mockChartData, kpiData: kpis });
-        console.log("[Dashboard]", "Dados carregados com sucesso.");
-      } catch (e: any) {
-        console.error("[Dashboard]", "Erro simulado ao carregar dados:", e.message);
-        setError(e.message || "Ocorreu um erro desconhecido.");
+        setLoading(true);
+        setError(null);
+        const response = await fetch("/api/dashboard/kpis", {
+          method: "POST",
+          signal: controller.signal,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            platforms: validPlatforms,
+            selections: selectedManagers,
+            range: {
+              from: range?.from?.toISOString() ?? null,
+              to: range?.to?.toISOString() ?? null,
+            },
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Não foi possível carregar os dados consolidados.");
+        }
+
+        const data = (await response.json()) as DashboardSnapshot;
+        setSnapshot(data);
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+        console.error("Erro ao buscar KPIs consolidados", err);
+        setError(err.message ?? "Erro inesperado ao carregar o dashboard.");
       } finally {
         setLoading(false);
       }
-    }, 900);
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    fetchSnapshot();
 
-  const highlightMetrics = useMemo(() => {
-    if (!data) return [] as Array<{ label: string; value: string; change: number; suffix?: string }>;
-    const latest = data.chartData.at(-1);
-    const previous = data.chartData.at(-2) ?? latest;
-    if (!latest || !previous) return [] as Array<{ label: string; value: string; change: number; suffix?: string }>;
+    return () => controller.abort();
+  }, [activePlatforms, selectedManagers, range?.from, range?.to]);
 
-    const roasCurrent = safeDivide(latest.revenue, latest.spend);
-    const roasPrevious = safeDivide(previous.revenue, previous.spend);
+  const aggregatedKpis = useMemo(() => snapshot?.kpis ?? null, [snapshot]);
+  const chartData = useMemo(() => snapshot?.daily ?? [], [snapshot]);
+  const distribution = useMemo(() => snapshot?.distribution ?? [], [snapshot]);
 
-    return [
-      {
-        label: "Receita diária",
-        value: formatCurrency(latest.revenue),
-        change: trendDelta(latest.revenue, previous.revenue),
-      },
-      {
-        label: "Investimento diário",
-        value: formatCurrency(latest.spend),
-        change: trendDelta(latest.spend, previous.spend),
-      },
-      {
-        label: "Conversões",
-        value: formatNumber(latest.conversions),
-        change: trendDelta(latest.conversions, previous.conversions),
-      },
-      {
-        label: "ROAS do dia",
-        value: formatDecimal(roasCurrent),
-        change: trendDelta(roasCurrent, roasPrevious),
-        suffix: "x",
-      },
-    ];
-  }, [data]);
+  const handleTogglePlatform = (platform: PlatformKey) => {
+    setActivePlatforms((current) => {
+      const next: PlatformKey[] = current.includes(platform)
+        ? (current.filter((item) => item !== platform) as PlatformKey[])
+        : ([...current, platform] as PlatformKey[]);
+      return ensureValidPlatforms(next);
+    });
+  };
 
-  if (loading) {
+  const handleManagerChange = (platform: PlatformKey, managerId: string) => {
+    setSelectedManagers((current) => ({
+      ...current,
+      [platform]: managerId,
+    }));
+  };
+
+  const handleApplyRange = (next?: PickerRange) => {
+    setRange(next);
+  };
+
+  const handleExport = async () => {
+    const validPlatforms: PlatformKey[] = ensureValidPlatforms(activePlatforms);
+    const rows = buildExportRows(validPlatforms, selectedManagers, serializeRange(range));
+    await exportKpiWorkbook(rows);
+  };
+
+  if (loading && !snapshot) {
     return <DashboardLoadingSkeleton />;
   }
 
-  if (error || !data) {
-    return <DashboardErrorState message={error || "Não foi possível exibir os dados."} />;
+  if (error) {
+    return <DashboardErrorState message={error} />;
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="glass-card overflow-hidden px-6 py-8 shadow-glass">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-5">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-muted-foreground/70">
-              <Sparkles className="h-3.5 w-3.5 text-accent" /> Inteligência de mídia
-            </span>
-            <div className="space-y-3">
-              <h1 className="text-3xl font-headline font-semibold text-foreground md:text-4xl">
-                Performance unificada dos canais
-              </h1>
-              <p className="max-w-2xl text-sm text-muted-foreground/80">
-                Acompanhe investimento, receita e conversões com uma visão centralizada e acionável em tempo real.
-              </p>
-            </div>
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
-            <DateRangePicker className="w-full sm:w-auto" />
-            <Button
-              variant="outline"
-              className="rounded-full border-white/20 bg-white/10 px-6 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-foreground hover:bg-white/20"
-            >
-              Criar alerta
-            </Button>
-          </div>
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-2">
+          <span className="text-xs uppercase tracking-[0.4em] text-muted-foreground/70">
+            Painel unificado
+          </span>
+          <h1 className="text-3xl font-bold font-headline text-foreground">
+            KPIs de Tráfego Pago Consolidado
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Combine Meta, Google e TikTok em um único cockpit com dados sincronizados em tempo real.
+          </p>
         </div>
-        {highlightMetrics.length > 0 && (
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {highlightMetrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl"
-              >
-                <p className="text-[0.65rem] uppercase tracking-[0.35em] text-muted-foreground/60">
-                  {metric.label}
-                </p>
-                <div className="mt-2 flex items-end justify-between gap-3">
-                  <span className="text-lg font-semibold text-foreground">
-                    {metric.value}
-                    {metric.suffix ?? ""}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs font-semibold",
-                      metric.change > 0
-                        ? "text-emerald-400"
-                        : metric.change < 0
-                          ? "text-rose-400"
-                          : "text-muted-foreground/70"
-                    )}
-                  >
-                    {formatPercentChange(metric.change)}
-                  </span>
-                </div>
-                <span className="text-[0.65rem] text-muted-foreground/60">vs dia anterior</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            className="glass-button border-white/10"
+            onClick={handleExport}
+          >
+            <Download className="mr-2 h-4 w-4" /> Exportar Planilha
+          </Button>
+          <DateRangePicker
+            value={range}
+            onApply={handleApplyRange}
+            onChange={handleApplyRange}
+          />
+        </div>
+      </header>
+
+      <section className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-3">
+          {(Object.keys(platformDefinitions) as PlatformKey[]).map((platform) => (
+            <PlatformToggle
+              key={platform}
+              platform={platform}
+              active={activePlatforms.includes(platform)}
+              onToggle={handleTogglePlatform}
+            />
+          ))}
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {activePlatforms.map((platform) => (
+            <BusinessManagerSelector
+              key={platform}
+              platform={platform}
+              value={selectedManagers[platform]}
+              onChange={handleManagerChange}
+            />
+          ))}
+        </div>
       </section>
 
-      <KpiCards kpis={data.kpiData} />
-      <ComparativeChart data={data.chartData} />
+      <KpiCards kpis={aggregatedKpis} />
+
+      <ComparativeChart data={chartData} />
+
+      {distribution.length > 0 && (
+        <DonutChartCard
+          title="Distribuição de Investimento por Objetivo"
+          data={distribution}
+        />
+      )}
     </div>
   );
 }

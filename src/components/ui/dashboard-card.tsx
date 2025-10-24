@@ -25,10 +25,17 @@ export function DashboardCard({ title, value, icon, subtext, highlight }: Dashbo
         </CardTitle>
         {icon && <span className="text-accent drop-shadow-[0_0_8px_rgba(0,247,255,0.45)]">{icon}</span>}
       </CardHeader>
-      <CardContent className="space-y-2">
-        <div className={cn("text-3xl font-headline font-semibold text-foreground", highlight && "text-accent neon-text")}>{value}</div>
-        {subtext && <p className="text-xs text-muted-foreground/80">{subtext}</p>}
-      </CardContent>
+        <CardContent className="space-y-2">
+          <div
+            className={cn(
+              "auto-scale-number font-headline font-semibold text-foreground",
+              highlight && "text-accent neon-text"
+            )}
+          >
+            {value}
+          </div>
+          {subtext && <p className="text-xs text-muted-foreground/80">{subtext}</p>}
+        </CardContent>
     </Card>
   );
 }

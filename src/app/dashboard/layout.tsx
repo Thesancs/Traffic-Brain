@@ -9,20 +9,15 @@ import { MobileSidebar } from "./components/mobile-sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Facebook, Chrome, Plug, Sparkles } from "lucide-react";
+import { Plug, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { PlatformLoading } from "./components/platform-loading";
-
-const TikTokIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-    <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556v2.177c.144.715.54 1.617 1.235 2.512C10.895 11.39 11.797 12 13 12v2.19c-1.7-.016-2.618-.59-3.5-1.556-.983.996-2.17 1.57-3.5 1.556V6.177c-1.32.016-2.517-.556-3.5-1.556v-2.2c1.32.016 2.517.556 3.5 1.556V0Z"/>
-  </svg>
-);
+import { GoogleAdsIcon, MetaIcon, TikTokIcon } from "@/components/icons/platforms";
 
 const topNavLinks = [
-  { name: "Meta Ads", href: "/dashboard/meta", icon: <Facebook /> },
-  { name: "Google Ads", href: "/dashboard/google", icon: <Chrome /> },
-  { name: "TikTok Ads", href: "/dashboard/tiktok", icon: <TikTokIcon /> },
+  { name: "Meta Ads", href: "/dashboard/meta", icon: <MetaIcon className="h-5 w-7" /> },
+  { name: "Google Ads", href: "/dashboard/google", icon: <GoogleAdsIcon className="h-5 w-7" /> },
+  { name: "TikTok Ads", href: "/dashboard/tiktok", icon: <TikTokIcon className="h-5 w-7" /> },
   { name: "Integrações", href: "/dashboard/integrations", icon: <Plug /> },
 ];
 
@@ -45,7 +40,7 @@ function HeaderNav() {
         >
           <span
             className={cn(
-              "flex h-5 w-5 items-center justify-center rounded-full border border-white/10 bg-white/10",
+              "flex h-7 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10",
               isActive(link.href) ? "text-accent" : "text-muted-foreground"
             )}
           >
